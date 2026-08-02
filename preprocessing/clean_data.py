@@ -7,7 +7,7 @@ Purpose
 -------
 Cleans one chunk of Alibaba Cluster Trace.
 Input
------
+----
 Raw DataFrame
 Output
 ------
