@@ -1,0 +1,9 @@
+,invalid_numeric_values,negative_values,values_above_100
+time_stamp,0,0,246912017
+cpu_util_percent,0,0,0
+mem_util_percent,0,0,0
+mem_gps,0,0,0
+mkpi,0,0,0
+net_in,0,0,0
+net_out,0,0,0
+disk_io_percent,0,37238,260330

@@ -1,0 +1,33 @@
+check,dataset,status,details
+Final file existence,batch_task,PASS,dataset\preprocessed\batch_task.csv
+Final file existence,machine_meta,PASS,dataset\preprocessed\machine_meta.csv
+Final file existence,machine_usage,PASS,dataset\cleaned\machine_usage.csv
+Final file existence,batch_instance_training,PASS,dataset\preprocessed\batch_instance_training.csv
+Final file existence,batch_instance_validation,PASS,dataset\preprocessed\batch_instance_validation.csv
+Final file existence,batch_instance_testing,PASS,dataset\preprocessed\batch_instance_testing.csv
+Final schema,batch_task,PASS,14 columns match the established schema.
+Final schema,machine_meta,PASS,7 columns match the established schema.
+Final schema,machine_usage,PASS,7 columns match the established schema.
+Final schema,batch_instance,PASS,15 columns match the established schema.
+Data dictionary structure,data_dictionary,PASS,43 documented columns.
+Data dictionary coverage,data_dictionary,PASS,"{'batch_instance': 15, 'batch_task': 14, 'machine_meta': 7, 'machine_usage': 7}"
+Established row count,batch_task,DOCUMENTED,"Established preprocessing result: 14,241,151 rows."
+Established row count,batch_instance_training,DOCUMENTED,"Established final split audit result: 808,882,311 rows."
+Established row count,batch_instance_validation,DOCUMENTED,"Established final split audit result: 269,627,437 rows."
+Established row count,batch_instance_testing,DOCUMENTED,"Established final split audit result: 269,627,438 rows."
+Previous audit evidence,batch_instance_final_split_validation.csv,PASS,Previously completed audit file is present.
+Previous audit evidence,batch_instance_resource_missing_audit.csv,PASS,Previously completed audit file is present.
+Previous audit evidence,final_four_dataset_relationship_validation.csv,PASS,Previously completed audit file is present.
+Previous audit evidence,machine_timestamp_alignment.csv,PASS,Previously completed audit file is present.
+Previous audit evidence,task_instance_job_relationship_summary_v2.csv,PASS,Previously completed audit file is present.
+Previous audit evidence,unmatched_machine_2739_records.csv,PASS,Previously completed audit file is present.
+Previous audit evidence,unmatched_task_records.csv,PASS,Previously completed audit file is present.
+Split validation,batch_instance,DOCUMENTED,"Final split audit established the target row counts and found zero negative durations, zero invalid time ordering, and zero invalid sequence relationships."
+Resource validation,batch_instance,DOCUMENTED,Previously completed resource audit established the intended missing resource values and retained resource extremes without clipping or normalization.
+Four dataset relationships,all datasets,DOCUMENTED,Final relationship validation established four validated relationships and documented explained exceptions.
+Task name exception,batch_task and batch_instance,DOCUMENTED,Eight batch_instance task names are absent from final batch_task because all corresponding raw batch_task records had invalid negative durations and were removed by the established cleaning rule.
+Machine metadata exception,machine_meta and machine_usage,DOCUMENTED,Machine 2739 was present in raw machine metadata but all of its metadata records had IMPORT_INSTALLING status and were intentionally removed.
+Task to job relationship,batch_task and batch_instance,DOCUMENTED,Task name to job name is not treated as a strict one-to-one integrity relationship.
+Resource preprocessing,batch_instance,DOCUMENTED,"Resource values are not clipped, rejected, or normalized during preprocessing. Normalization remains part of later RL state construction."
+Temporal leakage,train validation test,DOCUMENTED,The established chronological split counts and split boundaries are preserved. No preprocessing step in this validation changes the existing split files.
+Validation behavior,all datasets,PASS,This validation performs no modification of source or prepared datasets.

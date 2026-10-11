@@ -1,0 +1,6 @@
+column,invalid_numeric_values,negative_values
+instance_num,0,0
+start_time,0,0
+end_time,0,0
+plan_cpu,0,0
+plan_mem,0,0

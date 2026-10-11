@@ -1,0 +1,16 @@
+check,dataset,status,details
+Schema,batch_task,PASS,14 columns match expected schema.
+Schema,machine_meta,PASS,7 columns match expected schema.
+File existence,machine_usage,FAIL,File not found: dataset\preprocessed\machine_usage.csv
+File existence,batch_instance_training,FAIL,File not found: dataset\splits\batch_instance_train.csv
+File existence,batch_instance_validation,FAIL,File not found: dataset\splits\batch_instance_validation.csv
+File existence,batch_instance_testing,FAIL,File not found: dataset\splits\batch_instance_test.csv
+Data dictionary schema,data_dictionary,PASS,44 documented columns with all required fields.
+Data dictionary coverage,data_dictionary,PASS,"{'batch_instance': 15, 'batch_task': 14, 'machine_meta': 7, 'machine_usage': 8}"
+Split row count,training,FAIL,Split file not found.
+Split row count,validation,FAIL,Split file not found.
+Split row count,testing,FAIL,Split file not found.
+Preprocessing leakage,all datasets,DOCUMENTED,"No new normalization, clipping, or resource imputation is performed by this validation script."
+Preprocessing leakage,batch_instance,DOCUMENTED,Resource values are preserved as prepared. Normalization remains a later RL state-construction operation.
+Relationship exceptions,all datasets,DOCUMENTED,Previously explained task-name and machine 2739 exceptions are not reclassified as data corruption.
+Task to job relationship,all datasets,DOCUMENTED,Task-name to job-name is not used as a strict one-to-one integrity constraint.

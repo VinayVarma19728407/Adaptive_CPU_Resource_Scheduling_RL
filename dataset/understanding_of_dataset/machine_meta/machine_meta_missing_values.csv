@@ -1,0 +1,8 @@
+column,missing_count,missing_percentage
+machine_id,0,0.0
+time_stamp,0,0.0
+failure_domain_1,0,0.0
+failure_domain_2,34,0.19
+cpu_num,0,0.0
+mem_size,0,0.0
+status,0,0.0

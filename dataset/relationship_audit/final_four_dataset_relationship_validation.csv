@@ -1,0 +1,9 @@
+relationship,reference,target,reference_unique,target_unique,target_unmatched_keys,affected_target_rows,status,explanation
+batch_task task_name to batch_instance task_name,batch_task,batch_instance,416208,408810,8,3508,VALIDATED_WITH_EXPLAINED_EXCEPTION,Eight task names are absent from cleaned batch_task because every raw record for those task names had invalid negative duration and was removed during established cleaning.
+batch_instance machine_id to machine_meta machine_id,machine_meta,batch_instance,4033,3867,1,0,VALIDATED_WITH_EXPLAINED_EXCEPTION,The unmatched machine is 2739. All raw machine_meta records for this machine had status IMPORT_INSTALLING and were intentionally removed.
+machine_usage machine_id to machine_meta machine_id,machine_meta,machine_usage,4033,4021,1,44894,VALIDATED_WITH_EXPLAINED_EXCEPTION,"All unmatched machine_usage rows belong to machine 2739, whose machine_meta records were intentionally removed."
+machine_usage machine_id and time_stamp,machine_usage,machine_usage,0,0,0,0,VALIDATED,No duplicate machine_id and time_stamp combinations were found.
+batch_instance task_type consistency,batch_task,batch_instance,0,0,0,0,VALIDATED,The corrected task type relationship audit found zero task type mismatches.
+batch_instance sequence consistency,batch_instance,batch_instance,0,0,0,0,VALIDATED,No rows had seq_no greater than total_seq_no.
+batch_instance duration consistency,batch_instance,batch_instance,0,0,0,0,VALIDATED,No negative durations remained after established cleaning.
+batch_task task_name to job_name,batch_task,batch_instance,0,0,0,7399021,NOT_USED_AS_STRICT_INTEGRITY_CONSTRAINT,Individual task names can correspond to very large numbers of job names in batch_task. Therefore absence of a particular batch_instance task and job combination from batch_task is not treated as evidence of an invalid batch_instance row.

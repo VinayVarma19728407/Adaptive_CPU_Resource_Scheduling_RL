@@ -1,0 +1,10 @@
+,column,dtype
+0,task_name,object
+1,instance_num,float64
+2,job_name,object
+3,task_type,int64
+4,status,object
+5,start_time,int64
+6,end_time,int64
+7,plan_cpu,float64
+8,plan_mem,float64

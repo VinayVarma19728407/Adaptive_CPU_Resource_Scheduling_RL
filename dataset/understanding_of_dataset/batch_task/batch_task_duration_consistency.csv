@@ -1,0 +1,4 @@
+condition,count
+end_time < start_time,54580
+end_time == start_time,794280
+end_time > start_time,13446871

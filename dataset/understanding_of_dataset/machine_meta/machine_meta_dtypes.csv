@@ -1,0 +1,8 @@
+column,dtype
+machine_id,object
+time_stamp,int64
+failure_domain_1,int64
+failure_domain_2,float64
+cpu_num,int64
+mem_size,int64
+status,object

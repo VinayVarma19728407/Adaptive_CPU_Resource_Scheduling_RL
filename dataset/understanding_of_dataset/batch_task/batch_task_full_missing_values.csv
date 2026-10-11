@@ -1,0 +1,10 @@
+column,missing_count,missing_percentage
+task_name,0,0.0
+instance_num,23557,0.16
+job_name,0,0.0
+task_type,0,0.0
+status,0,0.0
+start_time,0,0.0
+end_time,0,0.0
+plan_cpu,61857,0.43
+plan_mem,61857,0.43

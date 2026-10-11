@@ -1,0 +1,30 @@
+check,split,value,status,interpretation
+Required columns,all,0,PASS,All required scenario manifest columns are present
+Duplicate scenario IDs,all,0,PASS,Scenario IDs must be unique
+Missing scenario IDs,all,0,PASS,Scenario IDs must not be missing
+Scenario row count,training,2457,PASS,Each split must contain scenarios
+Duplicate scenario selections,training,0,PASS,Identical scenario selections should not be duplicated
+Invalid time interval,training,0,PASS,Every scenario window must have positive duration
+Invalid time bin,training,0,PASS,Time bins must be nonnegative
+Natural-frequency coverage,training,1000,PASS,Natural-frequency scenarios should contain all 1000 temporal windows
+Natural-frequency duplicate bins,training,0,PASS,Each natural-frequency time window should appear once
+Balanced scenario coverage,training,1457,PASS,Balanced scenarios must exist
+Fixed selection seed,training,0,PASS,All scenario selections use the fixed reproducibility seed
+Scenario row count,validation,2270,PASS,Each split must contain scenarios
+Duplicate scenario selections,validation,0,PASS,Identical scenario selections should not be duplicated
+Invalid time interval,validation,0,PASS,Every scenario window must have positive duration
+Invalid time bin,validation,0,PASS,Time bins must be nonnegative
+Natural-frequency coverage,validation,1000,PASS,Natural-frequency scenarios should contain all 1000 temporal windows
+Natural-frequency duplicate bins,validation,0,PASS,Each natural-frequency time window should appear once
+Balanced scenario coverage,validation,1270,PASS,Balanced scenarios must exist
+Fixed selection seed,validation,0,PASS,All scenario selections use the fixed reproducibility seed
+Scenario row count,testing,2872,PASS,Each split must contain scenarios
+Duplicate scenario selections,testing,0,PASS,Identical scenario selections should not be duplicated
+Invalid time interval,testing,0,PASS,Every scenario window must have positive duration
+Invalid time bin,testing,0,PASS,Time bins must be nonnegative
+Natural-frequency coverage,testing,1000,PASS,Natural-frequency scenarios should contain all 1000 temporal windows
+Natural-frequency duplicate bins,testing,0,PASS,Each natural-frequency time window should appear once
+Balanced scenario coverage,testing,1872,PASS,Balanced scenarios must exist
+Fixed selection seed,testing,0,PASS,All scenario selections use the fixed reproducibility seed
+Scenario axis validity,all,0,PASS,Scenario axes use the defined categories
+Scenario type validity,all,0,PASS,Scenario types use the defined categories

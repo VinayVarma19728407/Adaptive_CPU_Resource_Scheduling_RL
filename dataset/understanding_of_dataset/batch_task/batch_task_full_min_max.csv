@@ -1,0 +1,6 @@
+column,minimum,maximum
+instance_num,1.0,99583.0
+start_time,0.0,765880.0
+end_time,0.0,772823.0
+plan_cpu,5.0,1000.0
+plan_mem,0.02,17.17

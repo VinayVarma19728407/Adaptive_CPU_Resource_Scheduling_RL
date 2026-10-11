@@ -1,0 +1,8 @@
+column,unique_count
+machine_id,4034
+time_stamp,11762
+failure_domain_1,292
+failure_domain_2,20
+cpu_num,1
+mem_size,1
+status,2

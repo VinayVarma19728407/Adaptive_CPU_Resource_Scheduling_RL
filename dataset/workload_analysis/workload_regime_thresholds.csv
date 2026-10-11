@@ -1,0 +1,6 @@
+threshold,value,source
+low_medium_intensity,0.45,training
+medium_high_intensity,0.7016666677766666,training
+highly_variable,0.1176617028519308,training
+cpu_heavy,0.014200000000000058,training
+memory_heavy,-0.014199999999999978,training

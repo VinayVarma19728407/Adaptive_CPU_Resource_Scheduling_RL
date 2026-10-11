@@ -1,0 +1,13 @@
+split,status,count
+training,4,801305766
+training,3,6268328
+training,0,1308118
+training,1,99
+validation,4,267597410
+validation,3,1889200
+validation,0,140821
+validation,1,6
+testing,4,268656591
+testing,3,905143
+testing,0,65623
+testing,1,81

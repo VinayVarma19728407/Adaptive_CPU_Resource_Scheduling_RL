@@ -1,0 +1,4 @@
+split,rows,expected_rows,row_count_ok,missing_values,negative_duration,invalid_time_order,invalid_sequence,zero_duration,positive_duration,resource_range_violations,min_start_time,max_start_time,min_end_time,max_end_time,training_before_validation,validation_before_testing
+training,808882311,808882311,True,25570056,0,0,0,11207949,797674362,414227900,1343,442534,3300,729925,False,False
+validation,269627437,269627437,True,6875526,0,0,0,4479818,265147619,133624771,442534,578482,442535,727465,False,False
+testing,269627438,269627438,True,3245819,0,0,0,4938577,264688861,122065951,578482,691199,578482,772736,False,False

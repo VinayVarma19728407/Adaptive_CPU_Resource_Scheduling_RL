@@ -1,0 +1,25 @@
+split,scenario_type,regime,available_time_bins,selection_rule
+training,natural-frequency,Low,448.0,
+training,natural-frequency,Medium,219.0,
+training,natural-frequency,High,333.0,
+training,natural-frequency,Highly Variable,200.0,
+training,natural-frequency,CPU-heavy,200.0,
+training,natural-frequency,Memory-heavy,200.0,
+validation,natural-frequency,Low,522.0,
+validation,natural-frequency,Medium,196.0,
+validation,natural-frequency,High,282.0,
+validation,natural-frequency,Highly Variable,175.0,
+validation,natural-frequency,CPU-heavy,195.0,
+validation,natural-frequency,Memory-heavy,166.0,
+testing,natural-frequency,Low,419.0,
+testing,natural-frequency,Medium,234.0,
+testing,natural-frequency,High,347.0,
+testing,natural-frequency,Highly Variable,386.0,
+testing,natural-frequency,CPU-heavy,199.0,
+testing,natural-frequency,Memory-heavy,251.0,
+all,balanced,Low,,equal number of eligible time windows
+all,balanced,Medium,,equal number of eligible time windows
+all,balanced,High,,equal number of eligible time windows
+all,balanced,Highly Variable,,equal number of eligible time windows
+all,balanced,CPU-heavy,,equal number of eligible time windows
+all,balanced,Memory-heavy,,equal number of eligible time windows

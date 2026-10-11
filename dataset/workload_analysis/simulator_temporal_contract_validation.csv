@@ -1,0 +1,35 @@
+check,split,value,status,interpretation
+Manifest required columns,all,0.0,PASS,Scenario manifest contains temporal fields required by the simulator
+Scenario end beyond machine usage coverage,training,38735.0,CHECK,Requires explicit machine-state handling when usage observations do not exist
+Scenario end beyond machine metadata coverage,training,33292.0,CHECK,Requires explicit machine-capacity handling when metadata coverage ends
+Total task rows scanned,training,808882311.0,PASS,Prepared split contains task instances
+Missing start time,training,0.0,PASS,Task arrival time must be available
+Missing end time,training,0.0,PASS,Task completion reference must be available
+Negative duration,training,0.0,PASS,Prepared splits must not contain negative durations
+Invalid time ordering,training,0.0,PASS,End time must not precede start time
+Missing machine ID,training,0.0,PASS,Machine ID must be available for internal trace bookkeeping
+Tasks before scenario range,training,0.0,DOCUMENTED,Tasks before the first scenario window are outside this split's scenario horizon
+Tasks after scenario range,training,0.0,DOCUMENTED,Tasks after the final scenario window are outside this split's scenario horizon
+Temporal bins receiving tasks,training,552.0,PASS,Scenario windows must contain task arrivals
+Scenario end beyond machine usage coverage,validation,36274.99999999988,CHECK,Requires explicit machine-state handling when usage observations do not exist
+Scenario end beyond machine metadata coverage,validation,30831.999999999884,CHECK,Requires explicit machine-capacity handling when metadata coverage ends
+Total task rows scanned,validation,269627437.0,PASS,Prepared split contains task instances
+Missing start time,validation,0.0,PASS,Task arrival time must be available
+Missing end time,validation,0.0,PASS,Task completion reference must be available
+Negative duration,validation,0.0,PASS,Prepared splits must not contain negative durations
+Invalid time ordering,validation,0.0,PASS,End time must not precede start time
+Missing machine ID,validation,0.0,PASS,Machine ID must be available for internal trace bookkeeping
+Tasks before scenario range,validation,0.0,DOCUMENTED,Tasks before the first scenario window are outside this split's scenario horizon
+Tasks after scenario range,validation,0.0,DOCUMENTED,Tasks after the final scenario window are outside this split's scenario horizon
+Temporal bins receiving tasks,validation,478.0,PASS,Scenario windows must contain task arrivals
+Scenario end beyond machine usage coverage,testing,81546.0,CHECK,Requires explicit machine-state handling when usage observations do not exist
+Scenario end beyond machine metadata coverage,testing,76103.0,CHECK,Requires explicit machine-capacity handling when metadata coverage ends
+Total task rows scanned,testing,269627438.0,PASS,Prepared split contains task instances
+Missing start time,testing,0.0,PASS,Task arrival time must be available
+Missing end time,testing,0.0,PASS,Task completion reference must be available
+Negative duration,testing,0.0,PASS,Prepared splits must not contain negative durations
+Invalid time ordering,testing,0.0,PASS,End time must not precede start time
+Missing machine ID,testing,0.0,PASS,Machine ID must be available for internal trace bookkeeping
+Tasks before scenario range,testing,0.0,DOCUMENTED,Tasks before the first scenario window are outside this split's scenario horizon
+Tasks after scenario range,testing,0.0,DOCUMENTED,Tasks after the final scenario window are outside this split's scenario horizon
+Temporal bins receiving tasks,testing,581.0,PASS,Scenario windows must contain task arrivals

@@ -1,0 +1,66 @@
+check,split,value,status,interpretation
+Intensity threshold ordering,all,1.0,PASS,"Low, medium and high intensity thresholds are ordered"
+Resource threshold ordering,all,1.0,PASS,Memory-heavy threshold is below CPU-heavy threshold
+Time-bin count,training,1000.0,PASS,Expected 1000 temporal workload windows
+Duplicate time bins,training,0.0,PASS,Each temporal workload window should be unique
+Missing workload intensity,training,0.0,PASS,Missing values can prevent regime assignment
+Missing resource dominance,training,0.0,PASS,Missing values can affect CPU and memory regime assignment
+Missing variability score,training,0.0,PASS,Edge windows can have insufficient rolling observations
+Intensity regime coverage,training:Low,448.0,PASS,Every intensity regime must contain windows
+Intensity regime coverage,training:Medium,219.0,PASS,Every intensity regime must contain windows
+Intensity regime coverage,training:High,333.0,PASS,Every intensity regime must contain windows
+Resource regime coverage,training:CPU-heavy,200.0,PASS,Every resource category should contain windows
+Resource regime coverage,training:Memory-heavy,200.0,PASS,Every resource category should contain windows
+Resource regime coverage,training:Balanced-resource,600.0,PASS,Every resource category should contain windows
+Highly Variable coverage,training,200.0,PASS,Highly Variable windows must be present
+Low-medium boundary ties,training,448.0,CHECK,Number of windows exactly at the low-medium threshold
+Medium-high boundary ties,training,0.0,CHECK,Number of windows exactly at the medium-high threshold
+Resource regime partition,training,1000.0,PASS,Every time window should belong to exactly one resource category
+Intensity regime partition,training,1000.0,PASS,Every time window should receive an intensity category
+Variability regime partition,training,1000.0,PASS,Every time window should receive a variability category
+Time-bin count,validation,1000.0,PASS,Expected 1000 temporal workload windows
+Duplicate time bins,validation,0.0,PASS,Each temporal workload window should be unique
+Missing workload intensity,validation,0.0,PASS,Missing values can prevent regime assignment
+Missing resource dominance,validation,0.0,PASS,Missing values can affect CPU and memory regime assignment
+Missing variability score,validation,0.0,PASS,Edge windows can have insufficient rolling observations
+Intensity regime coverage,validation:Low,522.0,PASS,Every intensity regime must contain windows
+Intensity regime coverage,validation:Medium,196.0,PASS,Every intensity regime must contain windows
+Intensity regime coverage,validation:High,282.0,PASS,Every intensity regime must contain windows
+Resource regime coverage,validation:CPU-heavy,195.0,PASS,Every resource category should contain windows
+Resource regime coverage,validation:Memory-heavy,166.0,PASS,Every resource category should contain windows
+Resource regime coverage,validation:Balanced-resource,639.0,PASS,Every resource category should contain windows
+Highly Variable coverage,validation,175.0,PASS,Highly Variable windows must be present
+Low-medium boundary ties,validation,522.0,CHECK,Number of windows exactly at the low-medium threshold
+Medium-high boundary ties,validation,0.0,CHECK,Number of windows exactly at the medium-high threshold
+Resource regime partition,validation,1000.0,PASS,Every time window should belong to exactly one resource category
+Intensity regime partition,validation,1000.0,PASS,Every time window should receive an intensity category
+Variability regime partition,validation,1000.0,PASS,Every time window should receive a variability category
+Time-bin count,testing,1000.0,PASS,Expected 1000 temporal workload windows
+Duplicate time bins,testing,0.0,PASS,Each temporal workload window should be unique
+Missing workload intensity,testing,0.0,PASS,Missing values can prevent regime assignment
+Missing resource dominance,testing,0.0,PASS,Missing values can affect CPU and memory regime assignment
+Missing variability score,testing,0.0,PASS,Edge windows can have insufficient rolling observations
+Intensity regime coverage,testing:Low,419.0,PASS,Every intensity regime must contain windows
+Intensity regime coverage,testing:Medium,234.0,PASS,Every intensity regime must contain windows
+Intensity regime coverage,testing:High,347.0,PASS,Every intensity regime must contain windows
+Resource regime coverage,testing:CPU-heavy,199.0,PASS,Every resource category should contain windows
+Resource regime coverage,testing:Memory-heavy,251.0,PASS,Every resource category should contain windows
+Resource regime coverage,testing:Balanced-resource,550.0,PASS,Every resource category should contain windows
+Highly Variable coverage,testing,386.0,PASS,Highly Variable windows must be present
+Low-medium boundary ties,testing,419.0,CHECK,Number of windows exactly at the low-medium threshold
+Medium-high boundary ties,testing,0.0,CHECK,Number of windows exactly at the medium-high threshold
+Resource regime partition,testing,1000.0,PASS,Every time window should belong to exactly one resource category
+Intensity regime partition,testing,1000.0,PASS,Every time window should receive an intensity category
+Variability regime partition,testing,1000.0,PASS,Every time window should receive a variability category
+Training median,workload_intensity,0.5006666666666666,PASS,Reference distribution
+Validation median,workload_intensity,0.45,CHECK,Compared with training distribution
+Testing median,workload_intensity,0.5931666666666666,CHECK,Compared with training distribution
+Training median,resource_dominance,0.002,PASS,Reference distribution
+Validation median,resource_dominance,0.002,CHECK,Compared with training distribution
+Testing median,resource_dominance,0.002,CHECK,Compared with training distribution
+Training median,variability_score,0.07747802712107575,PASS,Reference distribution
+Validation median,variability_score,0.0,CHECK,Compared with training distribution
+Testing median,variability_score,0.0915974898358427,CHECK,Compared with training distribution
+CPU-memory exclusivity,training,0.0,PASS,CPU-heavy and Memory-heavy are mutually exclusive
+CPU-memory exclusivity,validation,0.0,PASS,CPU-heavy and Memory-heavy are mutually exclusive
+CPU-memory exclusivity,testing,0.0,PASS,CPU-heavy and Memory-heavy are mutually exclusive

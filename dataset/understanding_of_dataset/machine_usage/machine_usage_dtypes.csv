@@ -1,0 +1,10 @@
+,dtype
+machine_id,object
+time_stamp,int64
+cpu_util_percent,int64
+mem_util_percent,int64
+mem_gps,float64
+mkpi,float64
+net_in,float64
+net_out,float64
+disk_io_percent,int64

@@ -1,0 +1,4 @@
+split,rows,cpu_avg_missing,cpu_max_missing,mem_avg_missing,mem_max_missing,cpu_avg_min,cpu_avg_max,cpu_max_min,cpu_max_max,mem_avg_min,mem_avg_max,mem_max_min,cpu_avg_below_zero,cpu_avg_above_100,cpu_max_below_zero,cpu_max_above_100,mem_avg_below_zero,mem_avg_above_100,mem_max_below_zero,mem_max_above_100
+training,808882311,6392196,6391874,6392365,6393621,0.0,6676.0,0.0,3833700.0,0.0,107.34,0.0,0,64319194,0,349908661,0,7,0,45
+validation,269627437,1718828,1718745,1718761,1719192,0.0,4702.0,0.0,17250.0,0.0,105.84,0.0,0,20214714,0,113410048,0,2,0,9
+testing,269627438,811303,811228,811249,812039,0.0,4798.0,0.0,3645655.0,0.0,101.71,0.0,0,18359941,0,103706001,0,2,0,9

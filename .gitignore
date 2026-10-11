@@ -1,5 +1,7 @@
-data/
-catboost_info/
-__pycache__/
-*.pyc
-.ipynb_checkpoints/
+# Previous implementation
+Old/
+
+# Dataset folders
+dataset/raw/
+dataset/cleaned/
+dataset/preprocessed/
