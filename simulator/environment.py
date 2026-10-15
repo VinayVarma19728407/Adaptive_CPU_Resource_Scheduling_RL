@@ -1,3 +1,25 @@
+# =============================================================================
+# FILE: simulator/environment.py
+# ROLE IN PROJECT:
+#   This is the core discrete-event scheduling simulator. It contains
+#   SchedulingEnvironment — the deterministic, non-RL simulation engine that
+#   the PPO RL wrapper (rl_environment.py) is built on top of.
+#
+#   What it does:
+#     - Loads a scenario CSV (or DataFrame) of tasks with arrival times,
+#       CPU/memory demands, and durations.
+#     - Manages an event queue (arrivals and completions ordered by time).
+#     - Schedules waiting tasks onto machines using one of two baseline
+#       placement policies: "first_fit" or "least_loaded".
+#     - Tracks per-task metrics: wait_time, flow_time, makespan, completion rate.
+#     - The schedule_task_on_machine() method is the RL interface hook: it lets
+#       RLSchedulingEnvironment place a specific task on a specific machine.
+#
+#   Consumed by:
+#     - rl_environment.py (wraps this class as a Gymnasium environment)
+#     - All experiment/benchmark scripts (e.g. evaluate_*.py, benchmark_*.py)
+#     - All test files (tests/test_environment.py, test_simulator_*.py)
+# =============================================================================
 from __future__ import annotations
 
 from collections import deque
@@ -39,18 +61,29 @@ class SchedulingEnvironment:
         "plan_mem", "duration", "arrival_time",
     }
 
+    
     def __init__(
         self,
         scenario: pd.DataFrame | str | Path,
         machine_state: Optional[MachineStateManager] = None,
         max_events: int = 2_000_000,
+        placement_policy: str = "first_fit",
     ) -> None:
+        if placement_policy not in {"first_fit", "least_loaded"}:
+            raise ValueError(
+                "placement_policy must be 'first_fit' or 'least_loaded'."
+            )
+
+        self.placement_policy = placement_policy
         self.scenario_source = scenario
         self._provided_machine_state = machine_state
         self.max_events = int(max_events)
+
         if self.max_events <= 0:
             raise ValueError("max_events must be positive.")
+
         self.reset()
+
 
     def _load_scenario(self) -> pd.DataFrame:
         if isinstance(self.scenario_source, pd.DataFrame):
@@ -171,7 +204,7 @@ class SchedulingEnvironment:
         self.metrics["tasks_unschedulable"] += 1
 
     def _is_permanently_infeasible(self, row: dict[str, Any]) -> bool:
-        cpu = float(row["plan_cpu"])
+        cpu = float(row["plan_cpu"])/100.00
         memory = float(row["plan_mem"])
         # Eligibility is already enforced when MachineStateManager is built.
         return not any(
@@ -239,6 +272,66 @@ class SchedulingEnvironment:
             self.metrics["total_wait_time"] += wait_time
             self.metrics["total_flow_time"] += flow_time
 
+    def schedule_task_on_machine(
+            self,
+            task_id: str,
+            machine_id: str,
+        ) -> None:
+            """Start exactly one waiting task on a chosen feasible machine.
+
+            This method is intended for the RL interface. It preserves the
+            simulator's authoritative resource allocation and completion events.
+            """
+            if task_id not in self.waiting:
+                raise ValueError(
+                    f"Task {task_id} is not currently waiting."
+                )
+
+            row = self.task_rows[task_id]
+            cpu = float(row["plan_cpu"]) / 100.0
+            memory = float(row["plan_mem"])
+
+            if not self.machine_state.can_allocate(
+                machine_id, cpu, memory
+            ):
+                raise ValueError(
+                    f"Task {task_id} cannot be allocated to machine "
+                    f"{machine_id} with its current available resources."
+                )
+
+            allocation_id = self.machine_state.allocate(
+                machine_id, cpu, memory, task_id
+            )
+
+            self.waiting.remove(task_id)
+
+            duration = float(row["duration"])
+            completion_time = self.current_time + duration
+
+            running = RunningTask(
+                task_id=task_id,
+                allocation_id=allocation_id,
+                machine_id=self.machine_state.get_machine(
+                    machine_id
+                ).machine_id,
+                start_time=self.current_time,
+                completion_time=completion_time,
+                cpu_amount=cpu,
+                memory_amount=memory,
+                baseline_duration=duration,
+            )
+
+            self.running[task_id] = running
+            self.metrics["tasks_started"] += 1
+
+            self.events.push(
+                completion_time,
+                "completion",
+                task_id,
+            )
+
+            self.machine_state.validate_invariants()
+
     def _schedule_waiting_tasks(self) -> None:
         """Deterministic FCFS baseline; scan waiting tasks for feasible fits."""
         if not self.waiting:
@@ -250,14 +343,44 @@ class SchedulingEnvironment:
         while self.waiting:
             task_id = self.waiting.popleft()
             row = self.task_rows[task_id]
-            cpu = float(row["plan_cpu"])
+            cpu = float(row["plan_cpu"])/100.0
             memory = float(row["plan_mem"])
 
+            
+            feasible_machines = [
+                machine_id
+                for machine_id in sorted(self.machine_state.machines)
+                if self.machine_state.can_allocate(machine_id, cpu, memory)
+            ]
+
             selected_machine = None
-            for machine_id in sorted(self.machine_state.machines):
-                if self.machine_state.can_allocate(machine_id, cpu, memory):
-                    selected_machine = machine_id
-                    break
+
+            if feasible_machines:
+                if self.placement_policy == "first_fit":
+                    selected_machine = feasible_machines[0]
+
+                elif self.placement_policy == "least_loaded":
+                    def load_score(machine_id):
+                        machine = self.machine_state.get_machine(machine_id)
+                        cpu_used = machine.cpu_capacity - machine.cpu_available
+                        memory_used = (
+                            machine.memory_capacity - machine.memory_available
+                        )
+
+                        cpu_util = cpu_used / machine.cpu_capacity
+                        memory_util = memory_used / machine.memory_capacity
+
+                        return (
+                            max(cpu_util, memory_util),
+                            cpu_util + memory_util,
+                            machine_id,
+                        )
+
+                    selected_machine = min(
+                        feasible_machines,
+                        key=load_score,
+                    )
+
 
             if selected_machine is None:
                 remaining.append(task_id)

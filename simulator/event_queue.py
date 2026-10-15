@@ -1,3 +1,44 @@
+"""
+============================================================
+File: event_queue.py
+Module: simulator
+============================================================
+Discrete-event priority queue used as the timing backbone of
+the CPU scheduling simulator. All future events (task arrivals
+and task completions) are stored here in chronological order
+and consumed by SchedulingEnvironment and RLSchedulingEnvironment
+during simulation steps.
+
+Key Components:
+  - Event (dataclass): An immutable record representing one
+    simulation event. Fields:
+      * time      – simulation timestamp (float, non-negative)
+      * sequence  – monotonically increasing insertion counter
+                    that breaks ties among same-time events
+      * event_type – one of {"arrival", "completion"}
+      * task_id   – identifier of the affected task (str)
+      * payload   – optional arbitrary data attached to the event
+    Ordering is by (time, sequence), ensuring strict FIFO within
+    any single timestamp.
+  - EventQueue: Min-heap priority queue wrapping Python's heapq.
+    Public API:
+      * push(time, event_type, task_id, payload) – validate and
+        enqueue a new event.
+      * peek() – inspect the earliest event without removing it.
+      * pop()  – remove and return the earliest event.
+      * clear() – discard all events and reset sequence counters.
+      * is_empty() / __len__() – size queries.
+
+Inputs:
+  - Callers supply numeric timestamps, valid event_type strings,
+    and non-empty task ID strings when calling push().
+
+Outputs:
+  - Ordered Event objects returned by pop() and peek(), driving
+    the simulation clock forward in SchedulingEnvironment and
+    RLSchedulingEnvironment.
+============================================================
+"""
 
 from dataclasses import dataclass, field
 from itertools import count

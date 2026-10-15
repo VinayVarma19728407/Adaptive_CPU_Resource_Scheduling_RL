@@ -1,3 +1,55 @@
+"""
+============================================================
+File: task_data.py
+Module: simulator
+============================================================
+Raw data access layer for the RL-based CPU scheduling simulator.
+This module is responsible for loading and lightly validating
+the two primary source datasets — machine metadata and batch
+task records — and for producing a reproducible reservoir sample
+of task records that later stages convert into workload scenarios.
+
+Key Components:
+  - TASK_COLUMNS: List of column names selected from batch_task.csv
+    when reading task records (task_name, job_name, task_type,
+    status, start_time, end_time, plan_cpu, plan_mem, duration).
+  - MACHINE_COLUMNS: List of column names selected from
+    machine_meta.csv (machine_id, time_stamp, failure domains,
+    cpu_num, mem_size, status).
+  - load_machine_metadata() -> pd.DataFrame:
+      Reads machine_meta.csv, converts numeric columns, drops
+      rows with missing critical fields, de-duplicates by keeping
+      only the latest-timestamped record per machine, and filters
+      to machines with status == ELIGIBLE_MACHINE_STATUS (1),
+      positive cpu_num, and positive mem_size. Raises ValueError
+      if no eligible machines remain.
+  - sample_task_records(sample_size, seed) -> pd.DataFrame:
+      Streams batch_task.csv in configurable chunks and performs
+      reservoir sampling to obtain a reproducible, fixed-size
+      sample without loading the entire file into memory. Does
+      not fill missing demand/duration values — that is deferred
+      to the scenario loader.
+  - summarize_data(tasks, machines) -> None:
+      Prints a human-readable summary of the sampled task records
+      and eligible machine pool (counts, missing values, capacity
+      statistics) to stdout.
+
+Inputs:
+  - BATCH_TASK_FILE (batch_task.csv): Preprocessed batch task
+    records, potentially very large; read in chunks.
+  - MACHINE_META_FILE (machine_meta.csv): Small machine metadata
+    file read in one pass.
+  - sample_size (int): Number of task records to retain in the
+    reservoir sample (default 10,000).
+  - seed (int): Random seed for reproducible sampling (default 42).
+
+Outputs:
+  - pd.DataFrame of eligible machines consumed by
+    MachineStateManager.
+  - pd.DataFrame of sampled task records consumed by
+    scenario_loader.py to generate workload scenarios.
+============================================================
+"""
 
 import random
 from typing import Dict, List

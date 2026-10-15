@@ -1,0 +1,37 @@
+{
+  "model_path": "C:\\Users\\gvkva\\Desktop\\My ongoing projects\\Machine Learning Project\\Adaptive-Multi-Core-CPU-Scheduler-RL\\experiments\\models\\final_dataset_ppo_runs\\final_candidate_4000_machines_10_candidates_50000_20261014\\final_dataset_ppo.zip",
+  "machine_count": 10,
+  "machine_seed": 50001,
+  "task_pool_size": 50000,
+  "task_pool_seed": 42,
+  "tasks_per_scenario": 5000,
+  "scenario_seeds": [
+    11001,
+    22002,
+    33003,
+    44004,
+    55005
+  ],
+  "profiles": [
+    "high_exponential",
+    "bursty_100_per_unit"
+  ],
+  "policies": [
+    "first_fit",
+    "least_loaded",
+    "maskable_ppo"
+  ],
+  "candidate_count": 10,
+  "reward_mode": "extended_penalty",
+  "arrival_generation": {
+    "high_exponential": "seed-specific exponential gaps, scale=0.01",
+    "bursty_100_per_unit": "100 arrivals per time unit with seed-specific uniform offsets in [0, 0.05)"
+  },
+  "notes": [
+    "Synthetic arrivals are not historical trace replay.",
+    "All policies receive the same scenario for each profile and seed.",
+    "The trained PPO model is evaluated without further training.",
+    "The machine pool is fixed across scenarios."
+  ],
+  "elapsed_seconds": 1237.035
+}

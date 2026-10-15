@@ -1,3 +1,49 @@
+"""
+============================================================
+File: config.py
+Module: simulator
+============================================================
+Central configuration and path registry for the RL-based
+CPU scheduling simulator. All project-wide constants, dataset
+paths, and tunable simulator settings are defined here so that
+every other module in the simulator package can import from a
+single authoritative source.
+
+Key Components:
+  - PROJECT_ROOT: Resolved absolute path to the repository root,
+    used to build all other paths relative to the project.
+  - DATASET_DIR / PREPROCESSED_DIR / CLEANED_DIR: Directory
+    constants pointing to the preprocessed and cleaned dataset
+    sub-directories under `dataset/`.
+  - BATCH_TASK_FILE, MACHINE_META_FILE: Paths to the primary
+    preprocessed data files consumed by task_data.py.
+  - TRAINING_FILE, VALIDATION_FILE, TESTING_FILE: Paths to the
+    train/val/test splits of the batch instance dataset.
+  - MACHINE_USAGE_FILE: Path to the cleaned machine-usage CSV.
+  - CSV_CHUNK_SIZE: Row batch size for memory-efficient chunked
+    CSV reading (250,000 rows per chunk).
+  - RANDOM_SEED: Global reproducibility seed (42).
+  - MAX_CANDIDATE_MACHINES: Maximum number of machines presented
+    to the RL agent as action candidates per scheduling step.
+  - REQUIRE_CPU_DEMAND, REQUIRE_MEMORY_DEMAND,
+    REQUIRE_BASELINE_DURATION: Boolean guards that control
+    whether tasks missing these fields are rejected during
+    scenario validation.
+  - ELIGIBLE_MACHINE_STATUS: Integer status code (1 = USING)
+    that a machine must have to be admitted to the simulator pool.
+  - validate_required_files(): Raises FileNotFoundError if any
+    mandatory dataset file is absent from disk.
+
+Inputs:
+  - No runtime inputs; values are derived from __file__ at import
+    time and from hard-coded constants.
+
+Outputs:
+  - Module-level constants and the validate_required_files()
+    helper consumed by task_data.py, machine_state.py,
+    scenario_loader.py, and other simulator sub-modules.
+============================================================
+"""
 
 from pathlib import Path
 

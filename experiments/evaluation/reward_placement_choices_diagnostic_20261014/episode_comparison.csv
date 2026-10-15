@@ -1,0 +1,3 @@
+first_action,decisions,completed_tasks,unschedulable_tasks,total_wait_time,mean_wait_time,makespan,episode_reward,resource_invariants_passed,active_allocations_at_end
+0,3,3,0,0.0,0.0,20.0,-1.075,True,0
+1,3,3,0,0.0,0.0,20.0,-1.195,True,0

@@ -1,3 +1,27 @@
+# =============================================================================
+# FILE: simulator/scenario_loader.py
+# ROLE IN PROJECT:
+#   Responsible for building the initial synthetic workload scenarios used in
+#   early experiments (before the full dataset-driven manifest was introduced).
+#
+#   Pipeline:
+#     1. load_or_create_task_pool()  — draws a reproducible 10,000-task sample
+#        from batch_task.csv (cached to disk after the first run).
+#     2. validate_task_pool()        — filters out tasks missing CPU/memory
+#        demand or duration, producing "eligible" and "excluded" subsets.
+#     3. generate_initial_scenarios()— from the eligible pool, creates three
+#        synthetic workload intensities (light / moderate / heavy) by varying
+#        the inter-arrival interval. Each scenario is saved as a CSV under
+#        experiments/scenarios/.
+#
+#   Outputs (experiments/scenarios/):
+#     light_scenario_seed42.csv, moderate_scenario_seed42.csv,
+#     heavy_scenario_seed42.csv
+#
+#   Note: The full-dataset trace-replay approach superseded these synthetic
+#   scenarios in later experiments. See trace_replay_scenario.py and the
+#   scenario_management/ folder.
+# =============================================================================
 
 from pathlib import Path
 

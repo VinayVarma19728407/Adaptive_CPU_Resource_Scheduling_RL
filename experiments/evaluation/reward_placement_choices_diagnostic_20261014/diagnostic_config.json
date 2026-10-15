@@ -1,0 +1,12 @@
+{
+  "reward_mode": "extended_penalty",
+  "seed": 42,
+  "first_actions_compared": [
+    0,
+    1
+  ],
+  "machine_count": 2,
+  "task_count": 3,
+  "purpose": "Compare two initial feasible placement choices in a controlled heterogeneous scenario.",
+  "limitations": "Only the first action is varied. This is a small diagnostic, not a statistical benchmark or proof of PPO performance."
+}

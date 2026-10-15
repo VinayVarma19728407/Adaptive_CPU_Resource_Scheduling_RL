@@ -1,0 +1,22 @@
+{
+  "source": "C:\\Users\\gvkva\\Desktop\\My ongoing projects\\Machine Learning Project\\Adaptive-Multi-Core-CPU-Scheduler-RL\\dataset\\preprocessed\\batch_task.csv",
+  "source_size_bytes": 1160319493,
+  "source_mtime_ns": 1788632853765546700,
+  "eligible_records": 13446871,
+  "feature_columns": [
+    "plan_cpu",
+    "plan_mem",
+    "duration"
+  ],
+  "dtype": "float64",
+  "eligibility": [
+    "task_name and job_name non-null",
+    "finite plan_cpu, plan_mem, duration",
+    "plan_cpu > 0, plan_mem > 0, duration > 0",
+    "plan_cpu / 100 <= maximum selected machine CPU capacity",
+    "plan_mem <= maximum selected machine memory capacity"
+  ],
+  "instance_calibration_source": "C:\\Users\\gvkva\\Desktop\\My ongoing projects\\Machine Learning Project\\Adaptive-Multi-Core-CPU-Scheduler-RL\\dataset\\preprocessed\\batch_instance_training.csv",
+  "records_duration_calibrated_from_instances": 13294915,
+  "duration_calibration_match_percent": 98.869953
+}

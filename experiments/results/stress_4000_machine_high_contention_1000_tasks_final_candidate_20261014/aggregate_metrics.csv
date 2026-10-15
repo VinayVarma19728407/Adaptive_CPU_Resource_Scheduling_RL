@@ -1,0 +1,4 @@
+policy,completion_rate_mean,completion_rate_std,mean_wait_time_mean,mean_wait_time_std,total_wait_time_mean,total_wait_time_std,mean_flow_time_mean,mean_flow_time_std,total_flow_time_mean,total_flow_time_std,makespan_mean,makespan_std,unschedulable_mean,unschedulable_std,invalid_actions_mean,invalid_actions_std
+first_fit,1.0,,0.0,,0.0,,86.994,,86994.0,,7090.662999130936,,0.0,,0.0,
+least_loaded,1.0,,0.0,,0.0,,86.994,,86994.0,,7090.662999130936,,0.0,,0.0,
+maskable_ppo,1.0,,0.0,,0.0,,86.994,,86994.0,,7090.662999130936,,0.0,,0.0,

@@ -1,8 +1,44 @@
 """
-Clean Batch Task Metadata Files.
+============================================================
+File: clean_batch_task.py
+Module: data_cleaning
+============================================================
+Implements the cleaning pipeline for the Alibaba cluster
+batch_task metadata dataset. The batch_task table contains
+one record per task with planned resource requirements and
+scheduling lifecycle timestamps.
 
-This script implements the cleaning pipeline for batch_task metadata. It normalizes task names, job IDs, instance counts,
-and resource requests (CPU, memory), handling missing or malformed task attributes.
+Cleaning operations performed:
+  - Reads the raw batch_task.csv in memory-efficient chunks.
+  - Detects and removes duplicate header rows embedded mid-file.
+  - Fills missing instance_num values with 1 (default single instance).
+  - Fills missing plan_cpu values with the global mode of plan_cpu
+    computed in a first pass over the entire dataset.
+  - Fills missing plan_mem values with the global mode of plan_mem
+    computed in a first pass over the entire dataset.
+  - Removes records where end_time < start_time (invalid duration).
+  - Retains records where end_time == start_time (zero-duration tasks).
+  - Retains all task status values without filtering.
+
+Key Components:
+  - Two-pass pipeline: first pass computes global modes for plan_cpu
+    and plan_mem; second pass applies all cleaning transformations.
+  - Chunk-based streaming using pandas read_csv with chunksize=250000.
+
+Inputs:
+  - dataset/raw/batch_task.csv: raw Alibaba cluster batch_task trace.
+  - Expected columns (9): task_name, instance_num, job_name, task_type,
+    status, start_time, end_time, plan_cpu, plan_mem.
+
+Outputs:
+  - dataset/cleaned/batch_task.csv: cleaned batch_task records with
+    missing resource fields filled, invalid-duration rows removed,
+    and duplicate header rows eliminated.
+
+Project Module:
+  Part of the data_cleaning stage of the Adaptive Multi-Core CPU
+  Scheduler RL pipeline. Feeds into preprocess_batch_task.py.
+============================================================
 """
 
 import os

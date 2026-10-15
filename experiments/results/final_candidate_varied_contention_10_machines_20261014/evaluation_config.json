@@ -1,0 +1,32 @@
+{
+  "model_path": "C:\\Users\\gvkva\\Desktop\\My ongoing projects\\Machine Learning Project\\Adaptive-Multi-Core-CPU-Scheduler-RL\\experiments\\models\\final_dataset_ppo_runs\\final_candidate_4000_machines_10_candidates_50000_20261014\\final_dataset_ppo.zip",
+  "training_config_path": "C:\\Users\\gvkva\\Desktop\\My ongoing projects\\Machine Learning Project\\Adaptive-Multi-Core-CPU-Scheduler-RL\\experiments\\models\\final_dataset_ppo_runs\\final_candidate_4000_machines_10_candidates_50000_20261014\\training_config.json",
+  "machine_count": 10,
+  "machine_seed": 50001,
+  "candidate_count": 10,
+  "task_pool_size": 50000,
+  "task_pool_sample_seed": 42,
+  "tasks_per_episode": 5000,
+  "arrival_seed": 50001,
+  "scenario_seeds": [
+    50001
+  ],
+  "profiles": [
+    "high_exponential",
+    "bursty_100_per_unit"
+  ],
+  "policies": [
+    "first_fit",
+    "least_loaded",
+    "maskable_ppo"
+  ],
+  "notes": [
+    "The model is the final trained candidate, not the pilot.",
+    "Each policy receives identical task rows and arrival times within each profile and seed.",
+    "Task demands and durations are dataset-derived.",
+    "Arrival times are synthetic, not historical trace replay.",
+    "This is a 10-machine stress test, not the intended 4,000-machine fleet evaluation.",
+    "Only one scenario seed is used; results are exploratory."
+  ],
+  "elapsed_seconds": 268.862
+}

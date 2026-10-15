@@ -1,0 +1,7 @@
+first_action,scenario_task_id,task_name,job_name,arrival_time,start_time,completion_time,wait_time,flow_time,machine_id,allocated_cpu,allocated_memory,baseline_duration,status,reason
+0,t1,small_task_1,job1,0.0,0.0,10.0,0.0,10.0,small,3.0,3.0,10.0,completed,
+0,t2,small_task_2,job2,0.0,0.0,10.0,0.0,10.0,large,3.0,3.0,10.0,completed,
+0,t0,large_task,job0,0.0,0.0,20.0,0.0,20.0,large,8.0,8.0,20.0,completed,
+1,t1,small_task_1,job1,0.0,0.0,10.0,0.0,10.0,large,3.0,3.0,10.0,completed,
+1,t2,small_task_2,job2,0.0,0.0,10.0,0.0,10.0,large,3.0,3.0,10.0,completed,
+1,t0,large_task,job0,0.0,0.0,20.0,0.0,20.0,small,8.0,8.0,20.0,completed,

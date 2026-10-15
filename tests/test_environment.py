@@ -1,3 +1,25 @@
+# =============================================================================
+# FILE: tests/test_environment.py
+# ROLE IN PROJECT:
+#   Unit tests for the core SchedulingEnvironment class (simulator/environment.py).
+#   Uses Python's unittest framework and creates lightweight synthetic scenarios
+#   (no real dataset files needed).
+#
+#   Tests cover:
+#     - Single task completes and releases all resources back to the machine.
+#     - Zero-duration tasks complete at time 0 without infinite loops.
+#     - Completions at the same timestamp are processed before new arrivals.
+#     - Waiting task starts only after resources are freed by an earlier task.
+#     - Permanently infeasible tasks (CPU demand > machine capacity) are marked
+#       "unschedulable" instead of hanging.
+#     - Invalid inputs (negative duration, duplicate task IDs) raise ValueError.
+#     - All tasks are eventually resolved and no resource allocations are leaked.
+#
+#   These tests act as the safety net for any refactoring of the event loop or
+#   resource-accounting logic.
+#
+#   Run with: pytest tests/test_environment.py -v
+# =============================================================================
 import unittest
 import pandas as pd
 
@@ -62,10 +84,10 @@ class TestSchedulingEnvironment(unittest.TestCase):
         self.assertEqual(results.loc["t2", "wait_time"], 3)
 
     def test_permanently_infeasible_task_is_marked(self):
-        env = self.make_env([["t1", "task", "job", 11, 1, 3, 0]])
-        out = env.run()
-        self.assertEqual(out["metrics"]["tasks_unschedulable"], 1)
-        self.assertEqual(out["results"].iloc[0]["status"], "unschedulable")
+    	env = self.make_env([["t1", "task", "job", 1100, 1, 3, 0]])
+    	out = env.run()
+    	self.assertEqual(out["metrics"]["tasks_unschedulable"], 1)
+    	self.assertEqual(out["results"].iloc[0]["status"], "unschedulable")
 
     def test_invalid_negative_duration_rejected(self):
         with self.assertRaises(ValueError):

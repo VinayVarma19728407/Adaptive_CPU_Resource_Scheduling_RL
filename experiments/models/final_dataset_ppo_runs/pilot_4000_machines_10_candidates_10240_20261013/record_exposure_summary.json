@@ -1,0 +1,8 @@
+{
+  "eligible_pool_records": 13446871,
+  "placement_decisions": 10240,
+  "unique_records_exposed": 10240,
+  "dataset_coverage_percent": 0.076151544846381,
+  "dataset_pass_number": 1,
+  "records_consumed_in_current_pass": 10752
+}

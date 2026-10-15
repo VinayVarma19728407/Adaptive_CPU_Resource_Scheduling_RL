@@ -1,0 +1,4 @@
+policy,seed,tasks,completed,unschedulable,completion_rate,mean_wait_time,total_wait_time,mean_flow_time,total_flow_time,makespan,invalid_actions,resource_invariants_passed,active_allocations_at_end
+first_fit,50001,1000,1000,0,1.0,0.0,0.0,73.719,73719.0,1807.0622171694026,0,True,0
+least_loaded,50001,1000,1000,0,1.0,0.0,0.0,73.719,73719.0,1807.0622171694026,0,True,0
+maskable_ppo,50001,1000,1000,0,1.0,0.0,0.0,73.719,73719.0,1807.0622171694026,0,True,0

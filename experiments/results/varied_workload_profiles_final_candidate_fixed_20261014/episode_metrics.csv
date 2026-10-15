@@ -1,0 +1,13 @@
+profile,seed,policy,tasks,completed,unschedulable,completion_rate,mean_wait_time,total_wait_time,mean_flow_time,total_flow_time,makespan,invalid_actions,resource_invariants_passed,active_allocations_at_end
+low_exponential,50001,first_fit,5000,5000,0,1.0,0.0,0.0,90.9354,454677.0,22981.610365202614,0,True,0
+low_exponential,50001,least_loaded,5000,5000,0,1.0,0.0,0.0,90.9354,454677.0,22981.610365202614,0,True,0
+low_exponential,50001,maskable_ppo,5000,5000,0,1.0,0.0,0.0,90.9354,454677.0,22981.610365202614,0,True,0
+moderate_exponential,50001,first_fit,5000,5000,0,1.0,0.0,0.0,90.9354,454677.0,22756.778867264926,0,True,0
+moderate_exponential,50001,least_loaded,5000,5000,0,1.0,0.0,0.0,90.9354,454677.0,22756.778867264926,0,True,0
+moderate_exponential,50001,maskable_ppo,5000,5000,0,1.0,0.0,0.0,90.9354,454677.0,22756.778867264926,0,True,0
+high_exponential,50001,first_fit,5000,5000,0,1.0,0.0,0.0,90.9354,454677.0,22699.563309318022,0,True,0
+high_exponential,50001,least_loaded,5000,5000,0,1.0,0.0,0.0,90.9354,454677.0,22699.563309318022,0,True,0
+high_exponential,50001,maskable_ppo,5000,5000,0,1.0,0.0,0.0,90.9354,454677.0,22699.563309318022,0,True,0
+bursty_100_per_unit,50001,first_fit,5000,5000,0,1.0,0.0,0.0,90.9354,454677.0,22700.010711530027,0,True,0
+bursty_100_per_unit,50001,least_loaded,5000,5000,0,1.0,0.0,0.0,90.9354,454677.0,22700.010711530027,0,True,0
+bursty_100_per_unit,50001,maskable_ppo,5000,5000,0,1.0,0.0,0.0,90.9354,454677.0,22700.010711530027,0,True,0

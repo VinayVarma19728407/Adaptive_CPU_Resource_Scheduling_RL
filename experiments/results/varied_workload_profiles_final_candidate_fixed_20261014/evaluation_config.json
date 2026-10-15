@@ -1,0 +1,34 @@
+{
+  "model_path": "C:\\Users\\gvkva\\Desktop\\My ongoing projects\\Machine Learning Project\\Adaptive-Multi-Core-CPU-Scheduler-RL\\experiments\\models\\final_dataset_ppo_runs\\final_candidate_4000_machines_10_candidates_50000_20261014\\final_dataset_ppo.zip",
+  "training_config_path": "C:\\Users\\gvkva\\Desktop\\My ongoing projects\\Machine Learning Project\\Adaptive-Multi-Core-CPU-Scheduler-RL\\experiments\\models\\final_dataset_ppo_runs\\final_candidate_4000_machines_10_candidates_50000_20261014\\training_config.json",
+  "machine_count": 4000,
+  "machine_seed": 43,
+  "candidate_count": 10,
+  "task_pool_sample_size": 50000,
+  "task_pool_sample_seed": 42,
+  "tasks_per_episode": 5000,
+  "arrival_seed": 50001,
+  "scenario_seeds": [
+    50001
+  ],
+  "profiles": [
+    "low_exponential",
+    "moderate_exponential",
+    "high_exponential",
+    "bursty_100_per_unit"
+  ],
+  "policies": [
+    "first_fit",
+    "least_loaded",
+    "maskable_ppo"
+  ],
+  "notes": [
+    "Task resource requests and durations are dataset-derived.",
+    "Arrival times are synthetic; they are not historical trace replay.",
+    "Within each profile and seed, every policy receives identical tasks and arrival times.",
+    "PPO uses deterministic prediction and action masks.",
+    "This benchmark uses 4,000 machines; smaller-fleet contention tests are separate.",
+    "A single seed per profile is an exploratory benchmark, not statistical proof of superiority."
+  ],
+  "elapsed_seconds": 455.828
+}

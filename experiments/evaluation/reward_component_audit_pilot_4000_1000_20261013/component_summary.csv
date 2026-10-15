@@ -1,0 +1,9 @@
+component,decision_count,nonzero_decisions,nonzero_rate,mean_weighted_penalty,median_weighted_penalty,total_weighted_penalty,maximum_weighted_penalty
+wait,1000,0,0.0,0.0,0.0,0.0,0.0
+makespan,1000,1,0.001,0.39392572217394095,0.0,393.9257221739409,393.9257221739409
+invalid,1000,0,0.0,0.0,0.0,0.0,0.0
+unschedulable,1000,0,0.0,0.0,0.0,0.0,0.0
+imbalance,1000,1000,1.0,0.004066145833333331,0.004166666666666663,4.066145833333331,0.004166666666666663
+fragmentation,1000,0,0.0,0.0,0.0,0.0,0.0
+saturation,1000,0,0.0,0.0,0.0,0.0,0.0
+starvation,1000,0,0.0,0.0,0.0,0.0,0.0

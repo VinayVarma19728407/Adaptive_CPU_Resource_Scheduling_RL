@@ -1,3 +1,28 @@
+# =============================================================================
+# FILE: data_preprocessing/preprocess_batch_instance_training.py
+# ROLE IN PROJECT:
+#   Produces the TRAINING split of the preprocessed batch instance dataset.
+#   This is the first large data-pipeline script that must be run to prepare
+#   data for RL training.
+#
+#   Two-pass approach (memory efficient, no full file load):
+#     PASS 1: Streams batch_instance.tar.gz to count valid rows per timestamp
+#             and determine timestamp-based split boundaries at 60% training.
+#     PASS 2: Streams again and writes only the training-split rows to
+#             dataset/preprocessed/batch_instance_training.csv
+#
+#   Cleaning performed per chunk:
+#     - Strips whitespace from all string columns.
+#     - Converts start_time, end_time, machine_id, seq_no to numeric types.
+#     - Encodes task status as integers (Failed=0, ..., Terminating=5).
+#     - Removes rows with invalid status or non-monotonic (end < start) times.
+#     - Computes duration = end_time - start_time.
+#     - Forward/backward-fills cpu_avg, cpu_max, mem_avg, mem_max within
+#       (job_name, task_name) groups to propagate resource telemetry.
+#
+#   Input:  batch_instance.tar.gz (raw Alibaba cluster trace archive)
+#   Output: dataset/preprocessed/batch_instance_training.csv
+# =============================================================================
 """
 Preprocess Training Split for Batch Instances.
 

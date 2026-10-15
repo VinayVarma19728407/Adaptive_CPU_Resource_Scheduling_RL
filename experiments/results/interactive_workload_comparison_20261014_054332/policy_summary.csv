@@ -1,0 +1,4 @@
+policy,tasks,completed,unschedulable,completion_rate,mean_wait_time,total_wait_time,mean_flow_time,makespan,invalid_actions
+First Fit,100,100,0,1.0,519.393,51939.3,561.2330000000001,1741.0,0
+Least Loaded,100,100,0,1.0,544.215,54421.5,586.055,1741.4,0
+PPO 20480,100,100,0,1.0,544.215,54421.50000000001,586.0550000000001,1741.4,0

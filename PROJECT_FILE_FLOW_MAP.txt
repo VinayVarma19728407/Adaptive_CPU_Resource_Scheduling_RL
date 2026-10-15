@@ -1,0 +1,974 @@
+================================================================================
+PROJECT FILE FLOW MAP
+Adaptive Multi-Core CPU Scheduler using Reinforcement Learning
+================================================================================
+Audit Date  : 2026-10-15
+Workspace   : c:\Users\gvkva\Desktop\My ongoing projects\Machine Learning Project\
+              Adaptive-Multi-Core-CPU-Scheduler-RL
+Auditor     : Static source inspection (no code executed, no files modified)
+
+CONNECTION LABELS
+[DIRECT]   Import/function call proven in source code (line numbers cited)
+[DATA]     Producer writes the exact file consumed by the next stage
+[MANUAL]   Script must be started separately; no automatic invocation
+[SEPARATE] Related purpose but no runtime connection to the current simulator
+[LEGACY]   Previous implementation; not imported/called by current source
+
+================================================================================
+1. AUDIT SCOPE AND NOTATION
+================================================================================
+Every claim below is sourced from the actual files present in the local workspace
+on the audit date.  .gitignore marks Old/, dataset/raw/, dataset/cleaned/, and
+dataset/preprocessed/ as Git-ignored; all four are present locally.
+
+Files inspected directly:
+  simulator/{config,environment,event_queue,machine_state,rl_environment,
+             scenario_loader,task_data,trace_replay_scenario}.py
+  data_cleaning/{clean_batch_instance,clean_batch_task,
+                 clean_machine_meta,clean_machine_usage}.py
+  data_preprocessing/{preprocess_batch_task,preprocess_machine_meta,
+                       preprocess_batch_instance_training,
+                       preprocessing_batch_instance_validation,
+                       preprocessing_batch_instance_testing}.py
+  analysis/workload_analysis/{analyze_workload_characteristics,
+                               analyze_workload_percentiles,
+                               analyze_workload_regimes}.py
+  scenario/scenario_management/create_workload_scenario_manifest.py
+  scenario/scenario_validation/{validate_workload_regimes,
+                                 validate_final_scenario_manifest}.py
+  validation/temporal_validation/validate_simulator_temporal_contract.py
+  experiments/train_final_dataset_maskable_ppo.py
+  experiments/evaluate_final_dataset_ppo.py
+  environment/{__init__,config,scenario,task}.py
+  tests/{test_environment,test_event_queue,test_machine_state,
+          test_rl_environment,test_contention,validate_generated_scenarios,
+          verify_machine_eligibility,audit_light_results}.py
+  Old/{main,reinforcement_learning/train,environment/core,...}.py (stubs only)
+  README.md, .gitignore
+
+================================================================================
+2. EXECUTIVE OVERVIEW
+================================================================================
+The project does NOT have a single master runner that chains all stages
+automatically. It consists of these DISTINCT manually-run workflows:
+
+  A. Data cleaning        (4 standalone scripts, run once per dataset)
+  B. Data preprocessing   (5 standalone scripts, run once per dataset)
+  C. Workload analysis / regime / manifest (analysis branch, wired to B outputs)
+  D. Synthetic scenario generation  [simulator/scenario_loader.py]
+  E. Deterministic baseline simulation  [simulator/environment.py]  <-- CURRENT PRIMARY
+  F. RL/PPO environment + MaskablePPO training  [experiments/train_*.py]
+  G. PPO evaluation + baseline comparison  [experiments/evaluate_*.py]
+  H. Trace-replay scenario builder  [simulator/trace_replay_scenario.py]
+  I. Validation / test suite  [tests/, validation/]
+  J. Legacy/stub code  [Old/]  -- Git-ignored, stubs only
+
+The "current primary simulation" is the deterministic FCFS event-driven engine in
+simulator/environment.py (and its RL wrapper simulator/rl_environment.py), which
+is actively trained and evaluated via experiments/train_*.py / evaluate_*.py.
+
+The scenario_loader.py synthetic scenario path is an older, simpler precursor
+that generated the three light/moderate/heavy CSVs that also exist on disk.
+
+================================================================================
+3. ENTRY POINTS
+================================================================================
+All entry points require manual invocation. None auto-launch another.
+
+EP-1  [CURRENT]  python -m simulator.scenario_loader
+        Generates experiments/scenarios/{light,moderate,heavy}_scenario_seed42.csv
+        Requires: dataset/preprocessed/batch_task.csv (locally present)
+
+EP-2  [CURRENT]  python -m simulator.environment [--scenario light|moderate|heavy]
+                                                  [--seed 42] [--output experiments/results]
+        Runs deterministic FCFS baseline.
+        Requires: experiments/scenarios/<name>_scenario_seed<seed>.csv
+                  dataset/preprocessed/machine_meta.csv (locally present)
+        Writes:   experiments/results/<scenario>_baseline_seed<seed>_results.csv
+
+EP-3  [CURRENT]  python -m simulator.task_data
+        Standalone data summary / sanity check. Requires preprocessed CSVs.
+
+EP-4  [CURRENT]  python experiments/train_final_dataset_maskable_ppo.py [--args]
+        Trains MaskablePPO via RLSchedulingEnvironment.
+        Requires: dataset/preprocessed/batch_task.csv + machine_meta.csv
+        Reads cached eligible_task_pool_seed42.csv or creates it.
+        Writes:   experiments/models/final_dataset_ppo_runs/<run-name>/
+                    final_dataset_ppo.zip, checkpoints/, training_config.json
+
+EP-5  [CURRENT]  python experiments/evaluate_final_dataset_ppo.py
+        PPO vs first_fit vs least_loaded benchmark.
+        Requires: trained model ZIP + training_config.json
+        Writes:   experiments/results/<run-name>/episode_metrics.csv
+                                                  aggregate_metrics.csv
+                                                  task_results.csv
+                                                  evaluation_config.json
+
+EP-6  [CURRENT]  python -m simulator.trace_replay_scenario
+        Builds historical-start-time replay scenario from cleaned batch_task.csv.
+        Requires: dataset/cleaned/batch_task.csv (locally present, Git-ignored)
+
+EP-7  [MANUAL/SEPARATE]  python data_cleaning/clean_batch_task.py
+EP-8  [MANUAL/SEPARATE]  python data_cleaning/clean_machine_meta.py
+EP-9  [MANUAL/SEPARATE]  python data_cleaning/clean_machine_usage.py
+EP-10 [MANUAL/SEPARATE]  python data_cleaning/clean_batch_instance.py
+EP-11 [MANUAL/SEPARATE]  python data_preprocessing/preprocess_batch_task.py
+EP-12 [MANUAL/SEPARATE]  python data_preprocessing/preprocess_machine_meta.py
+EP-13 [MANUAL/SEPARATE]  python data_preprocessing/preprocess_batch_instance_training.py
+EP-14 [MANUAL/SEPARATE]  python data_preprocessing/preprocessing_batch_instance_validation.py
+EP-15 [MANUAL/SEPARATE]  python data_preprocessing/preprocessing_batch_instance_testing.py
+EP-16 [MANUAL/SEPARATE]  python analysis/workload_analysis/analyze_workload_regimes.py
+EP-17 [MANUAL/SEPARATE]  python scenario/scenario_management/create_workload_scenario_manifest.py
+EP-18 [TEST]  pytest tests/ -v
+
+================================================================================
+4. WORKFLOW A  —  DATA CLEANING
+================================================================================
+Each script is standalone (top-level code; no if __name__ == "__main__" guard).
+All four hard-code Windows absolute paths (PORTABILITY RISK — see Section 12).
+
+Step A1 — data_cleaning/clean_batch_task.py
+  Trigger : python data_cleaning/clean_batch_task.py
+  Reads   : dataset/raw/batch_task.csv  (802 MB, locally present)
+  Columns : task_name, instance_num, job_name, task_type, status,
+            start_time, end_time, plan_cpu, plan_mem
+  Actions : two-pass; removes duplicate headers; fills missing instance_num=1,
+            plan_cpu and plan_mem using global mode; drops end_time<start_time rows
+  Writes  : dataset/cleaned/batch_task.csv  (~927 MB)
+  Evidence: L47-50 (path constants), L85-167 (cleaning loop)
+  Link    : [MANUAL] -> next: data_preprocessing/preprocess_batch_task.py
+
+Step A2 — data_cleaning/clean_machine_meta.py
+  Trigger : python data_cleaning/clean_machine_meta.py
+  Reads   : dataset/raw/machine_meta.csv  (552 KB, locally present)
+  Columns : machine_id, time_stamp, failure_domain_1/2, cpu_num, mem_size, status
+  Actions : strips "m_" prefix from machine_id; numeric coercion; neighbor-fill
+            failure_domain_2; removes IMPORT_INSTALLING rows; deduplicates
+  Writes  : dataset/cleaned/machine_meta.csv  (570 KB)
+  Evidence: L50-54 (paths), L60-97 (cleaning)
+  Link    : [MANUAL] -> next: data_preprocessing/preprocess_machine_meta.py
+
+Step A3 — data_cleaning/clean_machine_usage.py
+  Trigger : python data_cleaning/clean_machine_usage.py
+  Reads   : dataset/raw/machine_usage.csv  (8.99 GB, locally present)
+  Writes  : dataset/cleaned/machine_usage.csv  (~9.5 GB)
+  Link    : [MANUAL]  No current simulator module imports machine_usage.
+            [SEPARATE] from core simulation path.
+
+Step A4 — data_cleaning/clean_batch_instance.py
+  Trigger : python data_cleaning/clean_batch_instance.py
+  Reads   : C:\Users\gvkva\Desktop\My ongoing projects\Machine Learning Project\
+            batch_instance.tar.gz   (hard-coded path, one level above project root)
+  Actions : streams archive without extraction; removes duplicate headers and
+            end_time<start_time rows; validates output row count
+  Writes  : dataset/cleaned/batch_instance.csv
+  Evidence: L51-52 (paths), L94-163 (streaming pipeline)
+  !NOTE   : The archive path is OUTSIDE the project root. If the archive is absent
+            the script raises FileNotFoundError immediately. The preprocessing
+            split scripts (A,B,C) use the same archive path and bypass
+            dataset/cleaned/batch_instance.csv entirely.
+  Link    : [MANUAL]  dataset/cleaned/batch_instance.csv has no proven downstream
+            consumer in the current source (separate from the split scripts).
+
+================================================================================
+5. WORKFLOW B  —  DATA PREPROCESSING
+================================================================================
+Step B1 — data_preprocessing/preprocess_batch_task.py
+  Trigger : python data_preprocessing/preprocess_batch_task.py
+  Reads   : dataset/cleaned/batch_task.csv   [DATA from A1]
+  Actions : two-pass; builds global categorical encodings (task_name, job_name,
+            task_type, status); adds task_name_id, job_name_id, task_type_id,
+            status_id, duration = end_time - start_time
+  Writes  : dataset/preprocessed/batch_task.csv  (~1.16 GB, locally present)
+  Evidence: L11-14 (paths), L44-96 (pipeline)
+  Link    : [DATA] -> simulator/task_data.py (sample_task_records, L241)
+            [DATA] -> experiments/train_final_dataset_maskable_ppo.py (via
+                      simulator/scenario_loader.load_or_create_task_pool)
+
+Step B2 — data_preprocessing/preprocess_machine_meta.py
+  Trigger : python data_preprocessing/preprocess_machine_meta.py
+  Reads   : dataset/cleaned/machine_meta.csv   [DATA from A2]
+  Actions : maps USING->1; all other statuses raise ValueError
+  Writes  : dataset/preprocessed/machine_meta.csv  (534 KB, locally present)
+  Evidence: L11-14 (paths), L35-43 (encoding)
+  Link    : [DATA] -> simulator/task_data.load_machine_metadata (L100-161)
+                   -> simulator/machine_state.MachineStateManager (L91)
+
+Step B3 — data_preprocessing/preprocess_batch_instance_training.py
+  Trigger : python data_preprocessing/preprocess_batch_instance_training.py
+  Reads   : batch_instance.tar.gz  (same external archive as A4, hard-coded)
+  Actions : two-pass; 60% split by timestamp; cleans, encodes status, computes
+            duration, ffill/bfill resource telemetry within (job,task) groups
+  Writes  : dataset/preprocessed/batch_instance_training.csv  (65.8 GB)
+  Evidence: L40-42 (paths), L205-302 (main())
+  Link    : [DATA] -> analysis/workload_analysis/analyze_workload_regimes.py (L18-22)
+
+Step B4 — data_preprocessing/preprocessing_batch_instance_validation.py
+  Trigger : python data_preprocessing/preprocessing_batch_instance_validation.py
+  Reads   : same external archive; 20% validation split
+  Writes  : dataset/preprocessed/batch_instance_validation.csv  (22.1 GB)
+  Link    : [DATA] -> analysis workload scripts
+
+Step B5 — data_preprocessing/preprocessing_batch_instance_testing.py
+  Trigger : python data_preprocessing/preprocessing_batch_instance_testing.py
+  Reads   : same external archive; remaining 20% testing split
+  Writes  : dataset/preprocessed/batch_instance_testing.csv  (22.1 GB)
+  Link    : [DATA] -> analysis workload scripts
+
+================================================================================
+6. WORKFLOW C  —  WORKLOAD ANALYSIS / REGIME / MANIFEST
+================================================================================
+This is a standalone analytical branch.  It does NOT automatically feed the
+current simulator; the manifest it produces uses temporal windows, NOT the
+row-level task format expected by simulator/environment.py.
+
+Step C1 — analysis/workload_analysis/analyze_workload_characteristics.py
+  Trigger : python analysis/workload_analysis/analyze_workload_characteristics.py
+  Reads   : dataset/preprocessed/batch_instance_{training,validation,testing}.csv
+  Writes  : dataset/workload_analysis/workload_summary.csv
+            dataset/workload_analysis/workload_missingness.csv
+            dataset/workload_analysis/task_type_distribution.csv
+            dataset/workload_analysis/status_distribution.csv
+  Link    : [SEPARATE]
+
+Step C2 — analysis/workload_analysis/analyze_workload_percentiles.py
+  Trigger : python analysis/workload_analysis/analyze_workload_percentiles.py
+  Reads   : same three preprocessed split CSVs
+  Writes  : dataset/workload_analysis/accurate_workload_percentiles.csv
+  Link    : [SEPARATE]
+
+Step C3 — analysis/workload_analysis/analyze_workload_regimes.py
+  Trigger : python analysis/workload_analysis/analyze_workload_regimes.py
+  Reads   : dataset/preprocessed/batch_instance_{training,validation,testing}.csv
+            (relative paths, must be run from project root)
+  Columns used: start_time, duration, cpu_avg, mem_avg
+  Actions : bins time into 1000 bins per split; computes arrival/CPU/memory
+            work rates; assigns intensity_regime, resource_regime,
+            variability_regime using training-set thresholds
+  Writes  : dataset/workload_analysis/temporal_workload_statistics.csv
+            dataset/workload_analysis/workload_regime_profiles.csv
+            dataset/workload_analysis/workload_regime_thresholds.csv
+            dataset/workload_analysis/workload_scenario_manifest.csv
+  Evidence: L15-83 (paths), L362-989 (top-level execution)
+  Link    : [DATA] -> scenario/scenario_management/create_workload_scenario_manifest.py
+            [SEPARATE] from simulator/environment.py (different schema)
+
+Step C4 — scenario/scenario_management/create_workload_scenario_manifest.py
+  Trigger : python scenario/scenario_management/create_workload_scenario_manifest.py
+  Reads   : dataset/workload_analysis/workload_regime_profiles.csv
+  Actions : selects natural-frequency + balanced-intensity/resource/variability rows
+  Writes  : dataset/workload_analysis/workload_scenario_manifest_final.csv
+  Evidence: L21-29 (paths), L68-456 (top-level execution)
+  Link    : [DATA] -> scenario/scenario_validation/validate_workload_regimes.py
+            [DATA] -> validation/temporal_validation/validate_simulator_temporal_contract.py
+            [SEPARATE] from simulator/environment.py
+
+Step C5 — scenario/scenario_validation/validate_workload_regimes.py
+  Reads   : dataset/workload_analysis/workload_regime_{profiles,thresholds}.csv
+  Writes  : dataset/workload_analysis/workload_regime_validation.csv
+  Link    : [SEPARATE]
+
+Step C6 — scenario/scenario_validation/validate_final_scenario_manifest.py
+  Reads   : dataset/workload_analysis/workload_scenario_manifest_final.csv
+  Writes  : dataset/workload_analysis/workload_scenario_manifest_validation.csv
+  Link    : [SEPARATE]
+
+Step C7 — validation/temporal_validation/validate_simulator_temporal_contract.py
+  Reads   : dataset/workload_analysis/workload_scenario_manifest_final.csv
+            dataset/preprocessed/batch_instance_{training,validation,testing}.csv
+  Writes  : dataset/workload_analysis/simulator_temporal_contract_validation.csv
+            dataset/workload_analysis/simulator_machine_temporal_coverage.csv
+  Link    : [SEPARATE]
+
+================================================================================
+7. WORKFLOW D  —  SYNTHETIC SCENARIO GENERATION  (current, simpler path)
+================================================================================
+Step D1 — simulator/config.py
+  Trigger : imported at runtime by simulator/task_data.py (L59-66)
+  Role    : defines PROJECT_ROOT, BATCH_TASK_FILE, MACHINE_META_FILE,
+            RANDOM_SEED=42, CSV_CHUNK_SIZE=250000, ELIGIBLE_MACHINE_STATUS=1
+  Writes  : nothing
+  Link    : [DIRECT] imported by task_data, machine_state, scenario_loader,
+            rl_environment, environment, train scripts
+
+Step D2 — simulator/task_data.py :: sample_task_records()
+  Trigger : called by simulator/scenario_loader.load_or_create_task_pool (L71)
+            and by experiments/train_final_dataset_maskable_ppo.py (L16)
+  Reads   : dataset/preprocessed/batch_task.csv  (in 250k-row chunks)
+  Action  : reservoir sample; default 10,000 tasks, seed 42
+  Returns : pd.DataFrame (not written to disk here)
+  Evidence: L218-285
+
+Step D3 — simulator/scenario_loader.py :: main()
+  Trigger : python -m simulator.scenario_loader  (L282)
+  Calls   : load_or_create_task_pool()    -> task_data.sample_task_records [DIRECT]
+             validate_task_pool()          (internal filter)
+             generate_initial_scenarios()  (internal scenario builder)
+  Reads (cache) : experiments/data/task_pool_seed42.csv
+  Reads (source): dataset/preprocessed/batch_task.csv  (if cache absent)
+  Writes  : experiments/data/task_pool_seed42.csv
+            experiments/data/eligible_task_pool_seed42.csv
+            experiments/data/excluded_task_pool_seed42.csv
+            experiments/scenarios/light_scenario_seed42.csv   (500 tasks)
+            experiments/scenarios/moderate_scenario_seed42.csv (500 tasks)
+            experiments/scenarios/heavy_scenario_seed42.csv   (500 tasks)
+  Evidence: L30-37 (imports), L248-283 (main)
+  All three scenario files are PRESENT locally.
+  Link    : [DATA] -> simulator/environment.py :: load_scenario() (L480-487)
+
+================================================================================
+8. WORKFLOW E  —  DETERMINISTIC BASELINE SIMULATION  (current primary engine)
+================================================================================
+Step E1 — simulator/environment.py  [entry point, also library]
+  Trigger : python -m simulator.environment [--scenario light] [--seed 42]
+                                            [--output experiments/results]  (L490-512)
+  Imports : simulator.config   [DIRECT L33]
+            simulator.event_queue.EventQueue  [DIRECT L34]
+            simulator.machine_state.MachineStateManager  [DIRECT L35]
+  Action  : calls load_scenario() -> reads experiments/scenarios/<name>_seed<seed>.csv
+             creates SchedulingEnvironment(scenario_path)
+             calls reset() -> _load_scenario(), MachineStateManager(), EventQueue()
+             calls run() -> event loop: completions, arrivals, FCFS scheduling
+  Required scenario columns: scenario_task_id, task_name, job_name,
+                              plan_cpu, plan_mem, duration, arrival_time
+  plan_cpu units: hundredths of a core (divided by 100 internally, L207, L291, L346)
+  Writes  : experiments/results/<scenario>_baseline_seed<seed>_results.csv
+  Existing results on disk:
+            experiments/results/light_baseline_seed42_results.csv
+            experiments/results/moderate_baseline_seed42_results.csv
+            experiments/results/heavy_baseline_seed42_results.csv
+            experiments/results/heavy_first_fit_seed42_results.csv
+            experiments/results/heavy_least_loaded_seed42_results.csv
+  Evidence: L33-35 (imports), L480-512 (__main__ block)
+
+Step E2 — simulator/event_queue.py
+  Trigger : instantiated by SchedulingEnvironment.reset() (environment.py:L147)
+  Role    : min-heap priority queue; Event(time, sequence, event_type, task_id)
+            push/peek/pop/clear; types: "arrival", "completion"
+  Writes  : nothing
+  Evidence: L43-156
+
+Step E3 — simulator/machine_state.py
+  Trigger : MachineStateManager() called by environment.py:L139 or supplied externally
+  Imports : simulator.config.ELIGIBLE_MACHINE_STATUS  [DIRECT L33]
+            simulator.task_data.load_machine_metadata  [DIRECT L34]
+  Calls   : load_machine_metadata() -> reads dataset/preprocessed/machine_meta.csv
+  Role    : tracks per-machine CPU/memory capacity/available; atomic allocate/release;
+            validate_invariants() called at episode start and end
+  Evidence: L33-34 (imports), L90-91 (calls load_machine_metadata)
+
+Step E4 — simulator/task_data.py :: load_machine_metadata()
+  Called by: machine_state.MachineStateManager.__init__ (L91)
+  Reads   : dataset/preprocessed/machine_meta.csv
+  Action  : reads all rows; coerces numeric; sorts by (machine_id, time_stamp);
+            deduplicates keeping latest record per machine;
+            filters status==1 AND cpu_num>0 AND mem_size>0
+  Returns : pd.DataFrame of eligible machines
+  Evidence: L93-161
+
+================================================================================
+9. WORKFLOW F  —  RL/PPO TRAINING  (active, uses simulator as gym env)
+================================================================================
+Step F1 — experiments/train_final_dataset_maskable_ppo.py :: main()
+  Trigger : python experiments/train_final_dataset_maskable_ppo.py [--args]
+  Imports : simulator.config  [DIRECT L13]
+            simulator.rl_environment.RLSchedulingEnvironment  [DIRECT L14]
+            simulator.scenario_loader.{load_or_create_task_pool,
+                                        validate_task_pool}  [DIRECT L15]
+            simulator.task_data.load_machine_metadata  [DIRECT L16]
+            sb3_contrib.MaskablePPO  [DIRECT L10]
+  Reads   : dataset/preprocessed/batch_task.csv  (via scenario_loader)
+            dataset/preprocessed/machine_meta.csv  (via task_data)
+            experiments/data/eligible_task_pool_seed42.csv  (cache, if exists)
+  Action  : selects N machines from metadata; loads eligible task pool;
+            builds DatasetRandomizedRLEnvironment (subclass of RLSchedulingEnvironment);
+            generates fresh synthetic scenario per episode;
+            trains MaskablePPO with CheckpointCallback
+  Writes  : experiments/models/final_dataset_ppo_runs/<run-name>/
+              final_dataset_ppo.zip  (Stable-Baselines3 model)
+              checkpoints/final_dataset_ppo_<step>_steps.zip
+              training_config.json
+              eligible_task_pool_profile.csv
+              training_summary.json
+  Existing trained models in experiments/models/:
+            ppo_maskable_core_penalty.zip  (and many more .zip variants)
+            final_dataset_ppo_runs/  (subdirectories with run artefacts)
+  Evidence: L1-424
+
+Step F2 — simulator/rl_environment.py :: RLSchedulingEnvironment
+  Role    : gymnasium.Env wrapper around SchedulingEnvironment
+  Imports : simulator.config.MAX_CANDIDATE_MACHINES  [DIRECT L32]
+            simulator.environment.SchedulingEnvironment  [DIRECT L33]
+            simulator.machine_state.MachineStateManager  [DIRECT L34]
+  Observation: float32 vector [4 task features + 4*candidate_count machine features]
+  Action Space: Discrete(candidate_count)
+  Action masking: action_masks() -> used by MaskablePPO
+  Reward modes: "wait_only", "core_penalty", "extended_penalty"
+  Evidence: L22-35 (imports), L37-513
+
+================================================================================
+10. WORKFLOW G  —  PPO EVALUATION / BENCHMARK
+================================================================================
+Step G1 — experiments/evaluate_final_dataset_ppo.py :: main()
+  Trigger : python experiments/evaluate_final_dataset_ppo.py
+  Imports : simulator.config, simulator.environment.SchedulingEnvironment,
+            simulator.machine_state.MachineStateManager,
+            simulator.rl_environment.RLSchedulingEnvironment,
+            simulator.task_data.load_machine_metadata,
+            experiments.train_final_dataset_maskable_ppo.load_eligible_task_pool
+            [all DIRECT via L1-17]
+  Reads   : experiments/models/final_dataset_ppo_runs/<RUN_NAME>/
+              final_dataset_ppo.zip   (hard-coded RUN_NAME constant L20)
+              training_config.json
+            dataset/preprocessed/{batch_task,machine_meta}.csv  (indirectly)
+  Action  : for each evaluation seed: builds same scenario for all 3 policies;
+            runs first_fit baseline, least_loaded baseline, then MaskablePPO
+  Writes  : experiments/results/<run-name>/
+              episode_metrics.csv
+              aggregate_metrics.csv
+              task_results.csv
+              evaluation_config.json
+  Evidence: L17 (import from train script), L251-393 (main)
+
+Many additional evaluate_*.py scripts in experiments/ follow the same pattern:
+  evaluate_four_ppo_models_with_baselines.py
+  evaluate_final_candidate_varied_contention.py
+  evaluate_high_contention_diagnostic.py
+  benchmark_scheduling_policies.py
+  benchmark_generalization.py
+  etc.  — all import simulator.{environment,rl_environment,task_data,config}
+
+================================================================================
+11. WORKFLOW H  —  TRACE-REPLAY SCENARIO BUILDER
+================================================================================
+Step H1 — simulator/trace_replay_scenario.py :: main()
+  Trigger : python -m simulator.trace_replay_scenario
+  Reads   : dataset/cleaned/batch_task.csv  (locally present, Git-ignored)
+            (hard-coded as SOURCE = ROOT / "dataset" / "cleaned" / "batch_task.csv")
+  Action  : two-pass; finds middle 50% of timeline; selects 512 tasks;
+            sets arrival_time = start_time - origin; adds metadata columns
+  Writes  : experiments/data/trace_replay/
+              historical_start_proxy_scenario_v2.csv  (512 tasks)
+  !NOTE   : File refuses to overwrite; raises FileExistsError if output exists.
+  Evidence: L13-16 (paths), L23-196 (main)
+  Link    : [DATA] -> SchedulingEnvironment (must be passed manually; not auto-loaded)
+            Used by experiments/run_trace_replay_*.py scripts (separate)
+
+================================================================================
+12. ENVIRONMENT/ DATACLASSES  —  ISOLATED FROM CORE SIMULATION PATH
+================================================================================
+environment/__init__.py  — empty package init; no re-exports
+environment/config.py    — defines SIMULATION_MODE="event_driven",
+                           PRIMARY_RESOURCES=("cpu","memory"),
+                           MAX_CANDIDATE_MACHINES=20, PREEMPTION_ENABLED=False
+environment/scenario.py  — temporal Scenario dataclass (scenario_id, split,
+                           time_start, time_end, scenario_type, etc.)
+environment/task.py      — Task dataclass (task_id, cpu_demand, memory_demand,
+                           duration, arrival_time)
+
+FINDING: simulator/environment.py imports from simulator.config, NOT from
+environment/config.py. No current simulator module imports environment/scenario.py
+or environment/task.py. These dataclasses are DISCONNECTED from the active
+simulation runtime.
+[SEPARATE] from current simulation path.
+
+================================================================================
+13. VALIDATION AND TEST FLOWS
+================================================================================
+TESTS (pytest tests/ -v):
+  tests/test_environment.py
+    Imports: simulator.environment.SchedulingEnvironment
+             simulator.machine_state.MachineStateManager
+    Uses synthetic in-memory scenarios (no dataset files needed)
+    Tests: single task completion, zero duration, simultaneous arrivals,
+           waiting after resource release, permanently infeasible tasks,
+           negative duration rejected, duplicate IDs rejected, no leaked allocations
+
+  tests/test_event_queue.py
+    Imports: simulator.event_queue.EventQueue
+    Tests: ordering, tie-breaking, validation
+
+  tests/test_machine_state.py
+    Imports: simulator.machine_state.MachineStateManager
+    Tests: allocate/release, invariant validation, over-allocation rejection
+
+  tests/test_rl_environment.py
+    Imports: simulator.rl_environment.RLSchedulingEnvironment
+    Tests: reset/step, action masks, gymnasium checker
+
+  tests/test_contention.py, test_placement_comparison.py,
+  tests/test_placement_reward.py, tests/test_rl_contention.py
+    All import simulator modules; use synthetic scenarios.
+
+  tests/validate_generated_scenarios.py
+    Reads: experiments/scenarios/*.csv (requires Workflow D to have run)
+
+  tests/verify_machine_eligibility.py
+    Reads: dataset/preprocessed/machine_meta.csv
+
+  tests/audit_light_results.py
+    Reads: experiments/results/light_baseline_seed42_results.csv
+           experiments/scenarios/light_scenario_seed42.csv
+
+VALIDATION (separate scripts, not part of pytest):
+  validation/data_quality/audit_batch_instance_resource_missing.py
+  validation/data_quality/integrated_data_validation.py
+  validation/data_quality/integrated_data_validation_v2.py
+  validation/data_quality/stage1_data_contract_check.py
+  validation/mismatch_investigation/*.py   (7 scripts)
+  validation/relationship_audits/*.py      (7 scripts)
+  — All [MANUAL/SEPARATE]; not chained automatically.
+
+ROOT-LEVEL AUDIT SCRIPTS (standalone, not in tests/):
+  analyze_evaluation_contention.py
+  audit_instance_reconciliation.py
+  audit_task_multiplicity.py
+  compare_declared_instance_counts.py
+  diagnose_evaluation_contention.py
+  inspect_dataset_headers.py
+  inspect_reconciliation_mismatches.py
+  inspect_unmatched_key_relationships.py
+  show_heldout_ppo_comparison.py
+  test_policy_comparison_*.py  (4 scripts)
+  test_simulator_contention*.py  (3 scripts)
+  — All [MANUAL/SEPARATE].
+
+EXPERIMENTS/ ANALYSIS SCRIPTS (70+ files, all standalone):
+  See experiments/ listing. All import simulator modules directly.
+  Key sub-directories:
+    experiments/audits/           — post-run result audits
+    experiments/evaluation/       — evaluation artefacts
+    experiments/data/             — task pools, calibration profiles
+    experiments/models/           — trained .zip files
+    experiments/results/          — CSV output from simulations
+    experiments/scenarios/        — scenario CSVs
+
+================================================================================
+14. LEGACY FLOW  (Old/)
+================================================================================
+Old/ is listed in .gitignore (line 2). It is present locally but absent from Git.
+All Python files in Old/ contain only a docstring (stub bodies, no actual code).
+
+Old/main.py             — 7-line file; docstring only; no imports, no functions
+Old/reinforcement_learning/train.py — 6-line stub; docstring only
+Old/reinforcement_learning/ppo_agent.py, evaluate.py, callbacks.py — all stubs
+Old/environment/core.py, cpu_environment.py, action.py, reward.py,
+  state.py, process.py, queue_manager.py, pc.py — all stubs
+Old/config.py — 238-byte stub
+Old/algorithms/, Old/dashboard/, Old/models/, Old/notebooks/,
+  Old/preprocessing/, Old/tests/, Old/utils/, Old/visualization/ — all present
+  as directory with stub files.
+
+No current module imports anything from Old/. The prior RL/PPO implementation
+is entirely replaced by simulator/rl_environment.py + experiments/train_*.py.
+[LEGACY] — Old/ is isolated history.
+
+================================================================================
+15. COMPLETE FILE INVENTORY
+================================================================================
+RUNTIME — SIMULATOR CORE
+  simulator/config.py            [runtime / configuration]
+  simulator/task_data.py         [runtime / data access layer]
+  simulator/machine_state.py     [runtime / resource ledger]
+  simulator/event_queue.py       [runtime / event priority queue]
+  simulator/environment.py       [runtime / deterministic scheduler + CLI]
+  simulator/rl_environment.py    [runtime / Gymnasium RL wrapper]
+  simulator/scenario_loader.py   [runtime / synthetic scenario generator]
+  simulator/trace_replay_scenario.py [runtime / historical replay builder]
+
+RUNTIME — EXPERIMENTS (training + evaluation)
+  experiments/train_final_dataset_maskable_ppo.py   [current PPO trainer]
+  experiments/train_final_dataset_maskable_ppo_extended.py
+  experiments/train_final_dataset_maskable_ppo_v3.py
+  experiments/train_final_ppo_full_dataset.py
+  experiments/train_final_ppo_instance_calibrated.py
+  experiments/train_ppo_smoke_test.py
+  experiments/train_three_maskable_reward_models.py (and variants)
+  experiments/train_three_reward_models.py
+  experiments/evaluate_final_dataset_ppo.py  [current PPO evaluator]
+  experiments/evaluate_*.py  (16 evaluation scripts)
+  experiments/benchmark_scheduling_policies.py
+  experiments/benchmark_generalization.py
+  experiments/benchmark_v3_episode_capacity.py
+  experiments/run_trace_replay_*.py  (6 scripts)
+  experiments/interactive_workload_comparison.py
+  experiments/calibrate_workload_profiles.py
+  experiments/validate_final_candidate_multiseed.py
+  experiments/analyze_*.py  (7 analysis scripts within experiments/)
+  experiments/audit_*.py    (6 audit scripts)
+  experiments/compare_*.py  (7 comparison scripts)
+  experiments/diagnose_*.py (4 scripts)
+  experiments/inspect_dataset_scale.py
+  experiments/bounded_evaluation_task_pool.py
+  experiments/test_baseline_contention.py
+  experiments/test_v3_chunk_traversal.py
+  experiments/run_training_workload_contention_check.py
+  experiments/train_final_ppo_instance_calibrated.py  (copy in models/)
+
+DATA PREPARATION
+  data_cleaning/clean_batch_task.py      [preprocessing]
+  data_cleaning/clean_machine_meta.py    [preprocessing]
+  data_cleaning/clean_machine_usage.py   [preprocessing]
+  data_cleaning/clean_batch_instance.py  [preprocessing]
+  data_preprocessing/preprocess_batch_task.py          [preprocessing]
+  data_preprocessing/preprocess_machine_meta.py        [preprocessing]
+  data_preprocessing/preprocess_batch_instance_training.py    [preprocessing]
+  data_preprocessing/preprocessing_batch_instance_validation.py [preprocessing]
+  data_preprocessing/preprocessing_batch_instance_testing.py   [preprocessing]
+
+ANALYSIS / WORKLOAD
+  analysis/workload_analysis/analyze_workload_characteristics.py  [analysis]
+  analysis/workload_analysis/analyze_workload_percentiles.py      [analysis]
+  analysis/workload_analysis/analyze_workload_regimes.py          [analysis]
+  analysis/resource_analysis/analyze_planned_vs_observed_resources.py [analysis]
+  analysis/resource_analysis/analyze_resource_relationships.py    [analysis]
+  analysis/resource_analysis/audit_task_identity.py               [analysis]
+  analysis/telemetry_analysis/analyze_telemetry_intervals.py      [analysis]
+  analysis/telemetry_analysis/analyze_telemetry_intervals_duckdb.py [analysis]
+  analysis/telemetry_analysis/inspect_telemetry_timestamps.py     [analysis]
+
+SCENARIO MANAGEMENT / VALIDATION (workload analysis branch)
+  scenario/scenario_management/create_workload_scenario_manifest.py [analysis]
+  scenario/scenario_validation/validate_workload_regimes.py         [validation]
+  scenario/scenario_validation/validate_final_scenario_manifest.py  [validation]
+
+VALIDATION SCRIPTS
+  validation/data_quality/ (5 scripts)
+  validation/mismatch_investigation/ (7 scripts)
+  validation/relationship_audits/ (7 scripts)
+  validation/temporal_validation/validate_simulator_temporal_contract.py
+
+TESTS
+  tests/test_environment.py, test_event_queue.py, test_machine_state.py
+  tests/test_rl_environment.py, test_contention.py, test_placement_comparison.py
+  tests/test_placement_reward.py, test_rl_contention.py
+  tests/validate_generated_scenarios.py, verify_machine_eligibility.py
+  tests/audit_light_results.py
+
+ROOT-LEVEL STANDALONE SCRIPTS (analysis/audit, not part of tests/)
+  analyze_evaluation_contention.py
+  audit_instance_reconciliation.py, audit_task_multiplicity.py
+  compare_declared_instance_counts.py
+  diagnose_evaluation_contention.py
+  inspect_dataset_headers.py
+  inspect_reconciliation_mismatches.py
+  inspect_unmatched_key_relationships.py
+  show_heldout_ppo_comparison.py
+  test_policy_comparison_10_machine_contention.py
+  test_policy_comparison_10_machines.py
+  test_policy_comparison_contention.py
+  test_policy_comparison_mean_demand.py
+  test_simulator_contention.py
+  test_simulator_contention_130_tasks.py
+  test_simulator_contention_20_tasks.py
+
+DATASET UNDERSTANDING (exploratory)
+  Understanding of Dataset/batch_instance.py   [exploratory]
+  Understanding of Dataset/batch_task.py        [exploratory]
+  Understanding of Dataset/machine_meta.py      [exploratory]
+  Understanding of Dataset/machine_usage.py     [exploratory]
+  Understanding of Dataset/my_code_for_batch_instance.py [exploratory]
+
+DATA DOCUMENTATION
+  data_documentation/create_data_dictionary.py  [utility]
+  dataset/data_dictionary.csv                   [generated artefact]
+
+ENVIRONMENT DATACLASSES (disconnected from active runtime)
+  environment/__init__.py    [isolated]
+  environment/config.py      [isolated]
+  environment/scenario.py    [isolated]
+  environment/task.py        [isolated]
+
+CONFIGURATION / DOCUMENTATION
+  README.md
+  .gitignore
+
+GENERATED ARTEFACTS (data files, not source)
+  experiments/data/task_pool_seed42.csv
+  experiments/data/eligible_task_pool_seed42.csv
+  experiments/data/excluded_task_pool_seed42.csv
+  experiments/data/eligible_task_features_full.f64 (and manifest)
+  experiments/data/eligible_task_features_instance_calibrated.f64 (and manifest)
+  experiments/data/batch_instance_training_calibration_profile.csv
+  experiments/scenarios/{light,moderate,heavy}_scenario_seed42.csv
+  experiments/results/{light,moderate,heavy}_baseline_seed42_results.csv
+  experiments/results/heavy_{first_fit,least_loaded}_seed42_results.csv
+  experiments/results/ (37 subdirectories of evaluation results)
+  experiments/models/*.zip  (13 trained model files)
+  experiments/models/final_dataset_ppo_runs/  (subdirectories)
+  experiments/ppo_v3_episode_capacity_benchmark.json
+  experiments/workload_profile_calibration_50000_seed42.csv
+  analysis/resource_analysis/task_identity_audit_{examples,summary}.csv
+  dataset/workload_analysis/*.csv  (14 output files, all present locally)
+  dataset/data_dictionary.csv
+  project_evaluation_inventory.txt
+  project_source_inventory.txt
+  unnecessary_files_report.txt
+
+CACHE
+  duckdb_temp/       — DuckDB temp files from telemetry_intervals_duckdb.py
+  __pycache__/       — Python bytecode
+  .pytest_cache/
+  .venv/             — Virtual environment
+
+LEGACY (Git-ignored, local only, stubs)
+  Old/ (all files — docstring stubs)
+
+DATA FILES (Git-ignored, locally present, required by workflows)
+  dataset/raw/batch_task.csv    (802 MB)
+  dataset/raw/machine_meta.csv  (552 KB)
+  dataset/raw/machine_usage.csv (8.99 GB)
+  dataset/cleaned/batch_task.csv    (927 MB)
+  dataset/cleaned/machine_meta.csv  (570 KB)
+  dataset/cleaned/machine_usage.csv (~9.5 GB)
+  dataset/preprocessed/batch_task.csv          (1.16 GB)
+  dataset/preprocessed/machine_meta.csv        (534 KB)
+  dataset/preprocessed/machine_meta_4000.csv   (122 KB)
+  dataset/preprocessed/batch_instance_training.csv   (65.8 GB)
+  dataset/preprocessed/batch_instance_validation.csv (22.1 GB)
+  dataset/preprocessed/batch_instance_testing.csv    (22.1 GB)
+
+EXTERNAL DEPENDENCY (outside project root, required by 4 scripts)
+  C:\Users\gvkva\Desktop\My ongoing projects\Machine Learning Project\
+    batch_instance.tar.gz  — required by clean_batch_instance.py and all
+                             three preprocess_batch_instance_*.py scripts.
+                             Not confirmed present; must be verified manually.
+
+================================================================================
+16. MISSING / STALE / DISCONNECTED / RISKY REFERENCES
+================================================================================
+FINDING 1 — requirements.txt MISSING [README mismatch]
+  README.md line 34-35 says: "pip install -r requirements.txt"
+  requirements.txt does NOT exist in the current project root.
+  Old/requirements.txt is a stub file (zero-content placeholder).
+  Risk: New contributors cannot reproduce the environment from the README.
+
+FINDING 2 — Hard-coded Windows absolute paths  [portability risk]
+  data_cleaning/clean_batch_task.py:L47
+  data_cleaning/clean_machine_meta.py:L50
+  data_cleaning/clean_machine_usage.py (similar)
+  data_preprocessing/preprocess_batch_task.py:L11
+  data_preprocessing/preprocess_machine_meta.py:L11
+  preprocess_batch_instance_training.py:L38
+  All contain hard-coded "C:/Users/gvkva/..." paths.
+  These scripts will fail on any other machine without editing.
+  simulator/ uses Path(__file__).resolve().parent.parent (portable).
+
+FINDING 3 — batch_instance.tar.gz is OUTSIDE the project root
+  clean_batch_instance.py:L52 resolves the archive as:
+    "..\batch_instance.tar.gz" relative to the project folder.
+  All three preprocess_batch_instance_*.py scripts use the same path.
+  Archive presence not confirmed. If absent, all four scripts fail immediately.
+
+FINDING 4 — environment/ dataclasses are DISCONNECTED
+  environment/config.py, scenario.py, task.py are never imported by any
+  simulator/ module. simulator/environment.py imports from simulator.config
+  (not environment.config). The environment/ package is isolated code
+  that is not part of the active simulation runtime.
+
+FINDING 5 — dead code in simulator/task_data.py (second load_machine_metadata body)
+  task_data.py:L163-215 contains a second, unreachable implementation of
+  load_machine_metadata() placed after a return statement at L161.
+  This code is never executed. Should be cleaned up.
+
+FINDING 6 — workload_scenario_manifest_final.csv schema != scenario simulator schema
+  workload_scenario_manifest_final.csv columns include: scenario_id, split,
+  scenario_type, time_bin, time_start, time_end (temporal window descriptors).
+  simulator/environment.py requires: scenario_task_id, task_name, job_name,
+  plan_cpu, plan_mem, duration, arrival_time (row-per-task format).
+  No script in the current source converts the manifest into a row-level scenario.
+  The two formats are INCOMPATIBLE without a conversion step that does not exist.
+
+FINDING 7 — dataset/cleaned/batch_instance.csv has no downstream consumer
+  clean_batch_instance.py produces dataset/cleaned/batch_instance.csv,
+  but the three preprocess_batch_instance_*.py scripts read the raw archive
+  directly, bypassing cleaned/batch_instance.csv entirely.
+  This cleaned file is a produced artefact with no proven consumer.
+
+FINDING 8 — Old/ contains only stub files (empty docstrings, no code)
+  All Old/ Python files are stubs with no executable logic.
+  The prior RL/PPO implementation is completely absent from these files.
+
+FINDING 9 — simulator/config.py references cleaned machine_usage but no module reads it
+  config.py:L64 defines MACHINE_USAGE_FILE = CLEANED_DIR / "machine_usage.csv"
+  No current simulator module calls or imports this constant.
+  Machine usage data is not used in the active simulation at all.
+
+FINDING 10 — evaluate_final_dataset_ppo.py hard-codes a specific RUN_NAME
+  Line 20: RUN_NAME = "final_dataset_ppo_v1_20261011_a"
+  This evaluator will fail if that exact run directory does not exist.
+  The corresponding model .zip must exist at the hard-coded path.
+
+FINDING 11 — Many experiments/ scripts appear to be duplicates or iterations
+  e.g., evaluate_four_ppo_models_with_baselines.py,
+        evaluate_final_dataset_ppo_v1_vs_v2.py,
+        train_final_dataset_maskable_ppo.py.backup,
+        train_final_ppo_instance_calibrated.py appearing both in experiments/
+        and in experiments/models/.
+  These are likely historical experiment iterations that were not cleaned up.
+
+================================================================================
+17. ASCII FLOW DIAGRAMS
+================================================================================
+
+DIAGRAM 1 — DATA PREPARATION (run once, manual)
+
+  batch_instance.tar.gz  (external)
+  |                              dataset/raw/batch_task.csv
+  |                              |
+  |--- clean_batch_instance.py --+--> dataset/cleaned/batch_instance.csv [no consumer]
+  |                              |
+  |--- preprocess_batch_instance_training.py ---------> dataset/preprocessed/batch_instance_training.csv
+  |--- preprocessing_batch_instance_validation.py ----> dataset/preprocessed/batch_instance_validation.csv
+  |--- preprocessing_batch_instance_testing.py -------> dataset/preprocessed/batch_instance_testing.csv
+                                 |
+                                 clean_batch_task.py --> dataset/cleaned/batch_task.csv
+                                                         |
+                                                    preprocess_batch_task.py
+                                                         |
+                                                    dataset/preprocessed/batch_task.csv [KEY INPUT]
+
+  dataset/raw/machine_meta.csv
+  |
+  clean_machine_meta.py --> dataset/cleaned/machine_meta.csv
+                            |
+                       preprocess_machine_meta.py
+                            |
+                       dataset/preprocessed/machine_meta.csv [KEY INPUT]
+
+
+DIAGRAM 2 — WORKLOAD ANALYSIS BRANCH (separate, manual)
+
+  dataset/preprocessed/batch_instance_{training,validation,testing}.csv
+  |
+  analyze_workload_regimes.py
+  |
+  +-> dataset/workload_analysis/workload_regime_profiles.csv
+  |   |
+  |   create_workload_scenario_manifest.py
+  |   |
+  |   dataset/workload_analysis/workload_scenario_manifest_final.csv
+  |   |
+  |   +-> validate_final_scenario_manifest.py  -> workload_scenario_manifest_validation.csv
+  |   |
+  |   +-> validate_simulator_temporal_contract.py -> simulator_temporal_contract_validation.csv
+  |
+  +-> dataset/workload_analysis/workload_regime_thresholds.csv
+      |
+      validate_workload_regimes.py -> workload_regime_validation.csv
+
+  [SEPARATE from simulator/environment.py — schema incompatible without conversion]
+
+
+DIAGRAM 3 — SYNTHETIC SCENARIO GENERATION + BASELINE SIMULATION (current)
+
+  dataset/preprocessed/batch_task.csv
+  |
+  simulator/task_data.sample_task_records()   [DIRECT call]
+  |
+  simulator/scenario_loader.main()
+  |
+  experiments/data/task_pool_seed42.csv (cache)
+  experiments/data/eligible_task_pool_seed42.csv
+  experiments/data/excluded_task_pool_seed42.csv
+  |
+  experiments/scenarios/light_scenario_seed42.csv    (500 tasks)
+  experiments/scenarios/moderate_scenario_seed42.csv (500 tasks)
+  experiments/scenarios/heavy_scenario_seed42.csv   (500 tasks)
+  |                               |
+  simulator/environment.py        dataset/preprocessed/machine_meta.csv
+  (--scenario light --seed 42)    |
+  |                               simulator/task_data.load_machine_metadata()
+  |                               |
+  +--> simulator/event_queue.EventQueue
+  +--> simulator/machine_state.MachineStateManager
+  |
+  FCFS event loop (arrivals, completions, scheduling)
+  |
+  experiments/results/light_baseline_seed42_results.csv  [END]
+
+
+DIAGRAM 4 — RL/PPO TRAINING + EVALUATION (current)
+
+  dataset/preprocessed/batch_task.csv -------> eligible_task_pool_seed42.csv (cache)
+  dataset/preprocessed/machine_meta.csv        |
+  |                                            |
+  experiments/train_final_dataset_maskable_ppo.py
+  |   |
+  |   DatasetRandomizedRLEnvironment (subclass of RLSchedulingEnvironment)
+  |   |   |
+  |   |   RLSchedulingEnvironment (gymnasium.Env)
+  |   |   |   |
+  |   |   |   SchedulingEnvironment (core engine)
+  |   |   |   |
+  |   |   |   EventQueue + MachineStateManager
+  |   |
+  |   MaskablePPO (sb3_contrib) -- trains on synthetic per-episode scenarios
+  |
+  experiments/models/final_dataset_ppo_runs/<run-name>/
+    final_dataset_ppo.zip
+    checkpoints/
+    training_config.json
+  |
+  experiments/evaluate_final_dataset_ppo.py
+  |
+  runs first_fit, least_loaded (SchedulingEnvironment) + MaskablePPO evaluation
+  |
+  experiments/results/<run-name>/
+    episode_metrics.csv
+    aggregate_metrics.csv
+    task_results.csv        [END]
+
+
+DIAGRAM 5 — TRACE REPLAY (separate, manual)
+
+  dataset/cleaned/batch_task.csv
+  |
+  simulator/trace_replay_scenario.py
+  |
+  experiments/data/trace_replay/historical_start_proxy_scenario_v2.csv
+  |
+  [manually passed to] run_trace_replay_*.py scripts
+                        |
+                        SchedulingEnvironment (or RLSchedulingEnvironment)
+                        |
+                        experiments/results/trace_replay_*/   [END]
+
+================================================================================
+18. COVERAGE CHECKLIST
+================================================================================
+[x] simulator/config.py
+[x] simulator/task_data.py
+[x] simulator/event_queue.py
+[x] simulator/machine_state.py
+[x] simulator/environment.py
+[x] simulator/rl_environment.py
+[x] simulator/scenario_loader.py
+[x] simulator/trace_replay_scenario.py
+[x] data_cleaning/ (all 4 scripts)
+[x] data_preprocessing/ (all 5 scripts)
+[x] analysis/workload_analysis/ (all 3 scripts)
+[x] analysis/resource_analysis/ (3 scripts, headers)
+[x] analysis/telemetry_analysis/ (3 scripts, headers)
+[x] scenario/scenario_management/create_workload_scenario_manifest.py
+[x] scenario/scenario_validation/ (2 scripts)
+[x] validation/temporal_validation/validate_simulator_temporal_contract.py
+[x] validation/data_quality/ (5 scripts, names confirmed)
+[x] validation/mismatch_investigation/ (7 scripts, names confirmed)
+[x] validation/relationship_audits/ (7 scripts, names confirmed)
+[x] environment/{__init__,config,scenario,task}.py
+[x] experiments/train_final_dataset_maskable_ppo.py (full read)
+[x] experiments/evaluate_final_dataset_ppo.py (full read)
+[x] experiments/ directory structure (70+ scripts enumerated)
+[x] tests/ (all 11 files)
+[x] Old/ (all present as stubs)
+[x] Understanding of Dataset/ (5 scripts, names confirmed)
+[x] data_documentation/create_data_dictionary.py (name confirmed)
+[x] .gitignore
+[x] README.md
+[x] dataset/{raw,cleaned,preprocessed,workload_analysis}/ sizes confirmed
+[x] experiments/{data,scenarios,results,models}/ contents enumerated
+
+================================================================================
+END OF FILE FLOW MAP
+================================================================================

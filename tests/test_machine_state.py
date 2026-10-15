@@ -1,3 +1,26 @@
+# =============================================================================
+# FILE: tests/test_machine_state.py
+# ROLE IN PROJECT:
+#   Unit tests for MachineStateManager — the resource ledger that tracks CPU
+#   and memory availability for every machine in the simulator.
+#
+#   Tests cover:
+#     - Correct initial capacity after loading sample machine metadata.
+#     - Successful allocation reduces available resources correctly.
+#     - Over-CPU or over-memory allocation raises ValueError and leaves
+#       machine state completely unchanged (atomic failure).
+#     - can_allocate() returns True/False correctly for edge cases.
+#     - release() restores exact resources; double-release raises KeyError.
+#     - Unknown machine raises KeyError on allocate().
+#     - Invalid amounts (zero, negative, infinity, NaN) raise ValueError.
+#     - Multiple allocations + releases leave machine at full capacity.
+#     - Floating-point boundary allocations work correctly with tolerance.
+#
+#   These tests guard against silent resource over-commitment or leakage bugs
+#   in the simulator's allocation ledger.
+#
+#   Run with: pytest tests/test_machine_state.py -v
+# =============================================================================
 
 import unittest
 
@@ -139,7 +162,26 @@ class TestMachineStateManager(unittest.TestCase):
         self.assertEqual(machine.cpu_available, 96)
         self.assertEqual(machine.memory_available, 100)
         self.manager.validate_invariants()
+    def test_allocation_accepts_floating_point_boundary(self):
+        # Leave tiny residual CPU and memory amounts through real allocations.
+        self.manager.allocate(
+            "machine_A", 95.9, 99.95, "task_before_boundary"
+        )
 
+        machine = self.manager.get_machine("machine_A")
+
+        self.assertTrue(
+            self.manager.can_allocate("machine_A", 0.1, 0.05)
+        )
+
+        allocation_id = self.manager.allocate(
+            "machine_A", 0.1, 0.05, "task_float_boundary"
+        )
+
+        self.assertIsNotNone(allocation_id)
+        self.assertGreaterEqual(machine.cpu_available, 0.0)
+        self.assertGreaterEqual(machine.memory_available, 0.0)
+        self.manager.validate_invariants()
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -1,0 +1,12 @@
+metric,value
+batch_task_rows,14241151
+unique_task_names,416208
+unique_task_job_pairs,14241151
+task_names_with_multiple_jobs,16331
+pool_rows,10000
+pool_name_lookup_complete,10000
+pool_composite_lookup_complete,10000
+pool_cpu_reference_differences,3396
+pool_memory_reference_differences,4806
+composite_keys_with_multiple_cpu_values,0
+composite_keys_with_multiple_memory_values,0

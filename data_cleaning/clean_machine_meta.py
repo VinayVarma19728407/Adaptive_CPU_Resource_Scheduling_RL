@@ -1,8 +1,47 @@
 """
-Clean Machine Metadata Files.
+============================================================
+File: clean_machine_meta.py
+Module: data_cleaning
+============================================================
+Implements the cleaning pipeline for the Alibaba cluster
+machine_meta dataset. The machine_meta table describes the
+physical hardware configuration and status of each cluster
+node (machine) over time.
 
-This script implements the cleaning pipeline for physical node specifications (machine_meta). It standardizes machine IDs,
-core counts, memory capacities, GPU attributes, and node status values.
+Cleaning operations performed:
+  - Reads the full raw machine_meta.csv into memory (small file).
+  - Strips the "m_" prefix from machine_id values, converting them
+    to bare numeric strings for consistent joins with other tables.
+  - Strips whitespace from the status column.
+  - Converts time_stamp, failure_domain_1, failure_domain_2,
+    cpu_num, and mem_size to numeric types; non-parseable values
+    become NaN.
+  - Fills missing failure_domain_2 values using neighboring records
+    with the same machine_id (forward-fill from previous row or
+    backward-fill from next row when both neighbors agree or only
+    one neighbor is available for the same machine).
+  - Removes records with status == "IMPORT_INSTALLING" (transient
+    installation state not meaningful for scheduling).
+  - Drops exact duplicate rows.
+
+Key Components:
+  - index-based neighbor fill loop for failure_domain_2 imputation.
+  - Status filter to remove non-operational machine states.
+
+Inputs:
+  - dataset/raw/machine_meta.csv: raw Alibaba cluster machine metadata.
+  - Expected columns (7): machine_id, time_stamp, failure_domain_1,
+    failure_domain_2, cpu_num, mem_size, status.
+
+Outputs:
+  - dataset/cleaned/machine_meta.csv: cleaned machine metadata with
+    normalized machine_id, imputed failure_domain_2, removed
+    IMPORT_INSTALLING rows, and deduplicated records.
+
+Project Module:
+  Part of the data_cleaning stage of the Adaptive Multi-Core CPU
+  Scheduler RL pipeline. Feeds into preprocess_machine_meta.py.
+============================================================
 """
 
 import os

@@ -1,0 +1,15 @@
+{
+  "checkpoint": "C:\\Users\\gvkva\\Desktop\\My ongoing projects\\Machine Learning Project\\Adaptive-Multi-Core-CPU-Scheduler-RL\\experiments\\models\\final_dataset_ppo_runs\\final_candidate_4000_machines_10_candidates_50000_20261014\\checkpoints\\final_dataset_ppo_20480_steps.zip",
+  "candidate_count": 10,
+  "task_count": 100,
+  "machine_count": 2,
+  "cpu_input_unit": "cores; stored as plan_cpu = cores * 100",
+  "memory_input_unit": "same units as machine mem_size",
+  "duration_and_arrival_units": "simulator time units",
+  "policies": [
+    "First Fit",
+    "Least Loaded",
+    "PPO 20480"
+  ],
+  "timestamp": "20261014_054332"
+}

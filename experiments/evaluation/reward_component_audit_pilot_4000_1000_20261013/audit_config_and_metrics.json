@@ -1,0 +1,67 @@
+{
+  "model_path": "C:\\Users\\gvkva\\Desktop\\My ongoing projects\\Machine Learning Project\\Adaptive-Multi-Core-CPU-Scheduler-RL\\experiments\\models\\final_dataset_ppo_runs\\pilot_4000_machines_10_candidates_10240_20261013\\final_dataset_ppo.zip",
+  "training_config": {
+    "algorithm": "MaskablePPO",
+    "seed": 43,
+    "timesteps_requested": 10240,
+    "machine_count": 4000,
+    "tasks_per_episode": 512,
+    "candidate_count": 10,
+    "reward_mode": "extended_penalty",
+    "network_architecture": {
+      "pi": [
+        256,
+        128
+      ],
+      "vf": [
+        256,
+        128
+      ]
+    },
+    "n_steps": 512,
+    "batch_size": 128,
+    "n_epochs": 10,
+    "learning_rate": 0.0003,
+    "gamma": 0.99,
+    "gae_lambda": 0.95,
+    "clip_range": 0.2,
+    "ent_coef": 0.01,
+    "arrival_fraction_of_median_duration": 0.02,
+    "task_resource_units": {
+      "cpu": "plan_cpu / 100.0 CPU cores",
+      "memory": "plan_mem directly; same normalized scale as machine mem_size"
+    },
+    "arrival_time_note": "Arrival times are generated for controlled experiments; task resource requests and durations are dataset-derived."
+  },
+  "machine_count": 4000,
+  "eligible_task_pool_size": 50000,
+  "tasks_requested": 1000,
+  "scenario_tasks": 1000,
+  "machine_seed": 43,
+  "evaluation_seed": 50001,
+  "arrival_fraction": 0.001,
+  "reward_mode": "extended_penalty",
+  "reward_weights": {
+    "wait": 1.0,
+    "makespan": 0.5,
+    "invalid": 1.0,
+    "unschedulable": 2.0,
+    "imbalance": 0.1,
+    "fragmentation": 0.2,
+    "saturation": 0.1,
+    "starvation": 0.1
+  },
+  "duration_scale": 9.0,
+  "time_scale": 10.377587140630316,
+  "decisions": 1000,
+  "episode_reward": -397.9918680072743,
+  "completed_tasks": 1000,
+  "unschedulable_tasks": 0,
+  "completion_rate": 1.0,
+  "invalid_actions": 0,
+  "makespan": 7090.662999130936,
+  "resource_invariants_passed": true,
+  "active_allocations_at_end": 0,
+  "elapsed_seconds": 75.19077650003601,
+  "note": "Single deterministic PPO trajectory. Synthetic exponential arrivals; not a claim of historical arrival-time replay."
+}

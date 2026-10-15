@@ -1,0 +1,12 @@
+{
+  "scenario_file": "C:\\Users\\gvkva\\Desktop\\My ongoing projects\\Machine Learning Project\\Adaptive-Multi-Core-CPU-Scheduler-RL\\experiments\\data\\trace_replay\\historical_start_proxy_scenario_v2.csv",
+  "task_count": 512,
+  "arrival_semantics": "historical_start_time_proxy",
+  "policies": [
+    "first_fit",
+    "least_loaded"
+  ],
+  "ppo_trained": false,
+  "source_dataset_modified": false,
+  "existing_ppo_artifacts_modified": false
+}

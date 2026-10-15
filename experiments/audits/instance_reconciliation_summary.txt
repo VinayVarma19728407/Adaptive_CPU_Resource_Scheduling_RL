@@ -1,0 +1,12 @@
+Task-definition rows: 14,241,151
+Unique task composite keys: 14,241,151
+Observed instance rows: 1,348,137,186
+Reconciliation keys: 5 status groups
+Keys with non-matching status: 501,923
+
+STATUS SUMMARY
+definition_without_observed_instances | keys=60,532 | declared=326,755 | observed=0 | difference=0
+instance_key_without_definition | keys=3,207 | declared=0 | observed=7,402,529 | difference=0
+match | keys=13,742,435 | declared=925,647,323 | observed=925,647,323 | difference=0
+observed_greater_than_declared | keys=12,730 | declared=86,489,506 | observed=87,011,201 | difference=-521,695
+observed_less_than_declared | keys=425,454 | declared=376,369,978 | observed=328,076,133 | difference=48,293,845

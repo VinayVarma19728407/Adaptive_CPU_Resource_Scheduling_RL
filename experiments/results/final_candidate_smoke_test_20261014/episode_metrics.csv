@@ -1,0 +1,4 @@
+profile,seed,policy,tasks,completed,unschedulable,completion_rate,mean_wait_time,total_wait_time,mean_flow_time,makespan,invalid_actions
+high_exponential,11001,first_fit,20,20,0,1.0,0.0,0.0,56.8,692.1610239132585,0
+high_exponential,11001,least_loaded,20,20,0,1.0,0.0,0.0,56.8,692.1610239132585,0
+high_exponential,11001,maskable_ppo,20,20,0,1.0,0.0,0.0,56.8,692.1610239132585,0

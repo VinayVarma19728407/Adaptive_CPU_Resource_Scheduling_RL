@@ -1,0 +1,2 @@
+profile,seed,machine_count,task_count,arrival_window,mean_interarrival_gap,task_sample_fingerprint
+high_exponential,11001,10,20,0.23533359333999523,0.012385978596841854,3296453510018315274

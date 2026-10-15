@@ -1,0 +1,112 @@
+{
+  "benchmark": "PPO v3 simulator episode capacity",
+  "dataset": "C:\\Users\\gvkva\\Desktop\\My ongoing projects\\Machine Learning Project\\Adaptive-Multi-Core-CPU-Scheduler-RL\\dataset\\preprocessed\\batch_task.csv",
+  "physical_ram_mb": 16053.7,
+  "available_ram_at_start_mb": 5808.9,
+  "reserve_policy_mb": 2048,
+  "last_passing_candidate": 32768,
+  "results": [
+    {
+      "tasks": 256,
+      "status": "PASS",
+      "elapsed_seconds": 0.008,
+      "rss_before_mb": 131.2,
+      "rss_after_mb": 131.6,
+      "rss_increase_mb": 0.4,
+      "observation_shape": [
+        36
+      ],
+      "machine_count": 8
+    },
+    {
+      "tasks": 512,
+      "status": "PASS",
+      "elapsed_seconds": 0.01,
+      "rss_before_mb": 130.2,
+      "rss_after_mb": 130.8,
+      "rss_increase_mb": 0.6,
+      "observation_shape": [
+        36
+      ],
+      "machine_count": 8
+    },
+    {
+      "tasks": 1024,
+      "status": "PASS",
+      "elapsed_seconds": 0.014,
+      "rss_before_mb": 131.0,
+      "rss_after_mb": 132.1,
+      "rss_increase_mb": 1.1,
+      "observation_shape": [
+        36
+      ],
+      "machine_count": 8
+    },
+    {
+      "tasks": 2048,
+      "status": "PASS",
+      "elapsed_seconds": 0.023,
+      "rss_before_mb": 131.5,
+      "rss_after_mb": 133.5,
+      "rss_increase_mb": 2.0,
+      "observation_shape": [
+        36
+      ],
+      "machine_count": 8
+    },
+    {
+      "tasks": 4096,
+      "status": "PASS",
+      "elapsed_seconds": 0.037,
+      "rss_before_mb": 132.5,
+      "rss_after_mb": 136.1,
+      "rss_increase_mb": 3.7,
+      "observation_shape": [
+        36
+      ],
+      "machine_count": 8
+    },
+    {
+      "tasks": 8192,
+      "status": "PASS",
+      "elapsed_seconds": 0.075,
+      "rss_before_mb": 133.4,
+      "rss_after_mb": 141.7,
+      "rss_increase_mb": 8.4,
+      "observation_shape": [
+        36
+      ],
+      "machine_count": 8
+    },
+    {
+      "tasks": 16384,
+      "status": "PASS",
+      "elapsed_seconds": 0.125,
+      "rss_before_mb": 137.3,
+      "rss_after_mb": 153.5,
+      "rss_increase_mb": 16.2,
+      "observation_shape": [
+        36
+      ],
+      "machine_count": 8
+    },
+    {
+      "tasks": 32768,
+      "status": "PASS",
+      "elapsed_seconds": 0.246,
+      "rss_before_mb": 143.6,
+      "rss_after_mb": 174.4,
+      "rss_increase_mb": 30.8,
+      "observation_shape": [
+        36
+      ],
+      "machine_count": 8
+    }
+  ],
+  "notes": [
+    "No PPO training was run.",
+    "This benchmark tests simulator construction/reset on an eligible sample.",
+    "Episode size is not a claim of full-dataset coverage.",
+    "The largest passing size is only a candidate for a short smoke test."
+  ]
+}

@@ -1,0 +1,1005 @@
+================================================================================
+  UNNECESSARY / SAFELY DELETABLE FILES — Adaptive-Multi-Core-CPU-Scheduler-RL
+================================================================================
+Generated: 2026-10-14
+Author: Antigravity AI assistant
+
+This report lists every file in the project that is NOT part of the core
+working codebase. Deleting these files will NOT break training, evaluation,
+the simulator, or any production logic. Each entry includes the file path,
+a plain-English description of what the code does, and why it is safe to remove.
+
+The CORE codebase that must be kept is:
+  simulator/         — The scheduling simulator and RL environment
+  environment/       — RL environment config / helpers (if used by simulator)
+  data_cleaning/     — Scripts that produced the cleaned CSV files
+  data_preprocessing/— Scripts that produced the preprocessed splits
+  experiments/train_*.py  — All final training scripts (current, not backup)
+  experiments/evaluate_*.py — All evaluation scripts
+  tests/             — The official pytest test suite
+  dataset/           — Raw / cleaned / preprocessed data files
+  README.md, .gitignore
+
+Everything below is safe to delete.
+
+================================================================================
+  SECTION 1 — ROOT-LEVEL ONE-OFF DIAGNOSTIC / AUDIT SCRIPTS
+================================================================================
+These files sit directly in the project root. They were written for a single
+investigation session and are not called by any other code. All insights gained
+from them have already been acted on (or discarded). They reference hard-coded
+paths that may no longer exist.
+
+--------------------------------------------------------------------------------
+FILE: analyze_evaluation_contention.py
+WHAT IT DOES:
+  Reads a task_results.csv file from a specific old experiment folder
+  (experiments\results\ppo_v1_vs_v2_extended_20261012\task_results.csv),
+  then computes peak concurrent tasks per policy+machine using an event-sweep,
+  prints a crosstab of task statuses per policy, and prints wait-time and
+  flow-time statistics grouped by policy.
+WHY SAFE TO DELETE:
+  One-off contention diagnostic for an already-completed comparison experiment.
+  The same information is already captured in the evaluation CSVs. No other
+  file imports this script. The result folder path it targets is read-only; it
+  produces no persistent output.
+
+--------------------------------------------------------------------------------
+FILE: audit_instance_reconciliation.py
+WHAT IT DOES:
+  Uses DuckDB to load batch_task.csv and all three instance split CSVs
+  (training/validation/testing), then counts declared vs. observed instance
+  counts per task composite key, performs a full outer join, and writes a
+  summary text file and a mismatch CSV to experiments/audits/. It also creates
+  a persistent DuckDB database file (instance_reconciliation.duckdb) in that
+  same folder.
+WHY SAFE TO DELETE:
+  A one-time data-quality audit run during the dataset exploration phase. The
+  output files (the DuckDB database and CSVs in experiments/audits/) were
+  already reviewed and any issues were addressed in data_cleaning/. The
+  reconciliation database is ~450 MB on disk and is a generated artifact, not
+  source code. Deleting this script does not affect training or evaluation.
+
+--------------------------------------------------------------------------------
+FILE: audit_task_multiplicity.py
+WHAT IT DOES:
+  Reads dataset/preprocessed/batch_task.csv and prints summary statistics for
+  the instance_num, plan_cpu, plan_mem, and duration columns. Also counts rows
+  with duplicate composite keys (task_name, job_name) and prints examples.
+WHY SAFE TO DELETE:
+  Pure exploratory data analysis (EDA) script used to understand the dataset
+  during the early investigation phase. All findings were incorporated into the
+  data cleaning scripts. Produces no files; prints to stdout only.
+
+--------------------------------------------------------------------------------
+FILE: compare_declared_instance_counts.py
+WHAT IT DOES:
+  Reads batch_task.csv to get the sum of instance_num (expected total instance
+  rows), then scans the three batch_instance split files line-by-line to count
+  rows without loading them into pandas. Prints the declared vs. observed row
+  count difference.
+WHY SAFE TO DELETE:
+  Another one-off data sanity check from the dataset exploration phase. Faster
+  alternative to the full DuckDB audit, used to get a quick count. No longer
+  needed; dataset splits are stable.
+
+--------------------------------------------------------------------------------
+FILE: diagnose_evaluation_contention.py
+WHAT IT DOES:
+  Reads a specific evaluation task_results.csv file (from a named run
+  final_dataset_ppo_v1_20261011_a_evaluation_retry_20261012), then checks
+  that simulated durations match baseline durations, and sweeps events per
+  machine per seed to find peak CPU, peak memory, and peak concurrent active
+  tasks. Reports any capacity violations.
+WHY SAFE TO DELETE:
+  One-time debugging script created to investigate resource over-commitment
+  in a specific evaluation run. The bug it was diagnosing was fixed; the
+  experiment folder it targets no longer needs revisiting. No imports reference
+  this file.
+
+--------------------------------------------------------------------------------
+FILE: inspect_dataset_headers.py
+WHAT IT DOES:
+  Opens each of the six main CSV files (batch_task, batch_instance splits,
+  machine_meta, machine_usage) and prints their column header lists to stdout.
+  Does not read any data rows — just the first row of each file.
+WHY SAFE TO DELETE:
+  Extremely simple utility written once to verify column names during initial
+  dataset exploration. All column names are now well-documented and used
+  directly in the cleaning / preprocessing scripts. Zero value going forward.
+
+--------------------------------------------------------------------------------
+FILE: inspect_reconciliation_mismatches.py
+WHAT IT DOES:
+  Opens the persistent DuckDB database created by audit_instance_reconciliation.py
+  and runs five SELECT queries to display reconciliation counts, the largest
+  deficits, the largest excesses, definitions without observed instances, and
+  instance keys without definitions. Read-only; writes no files.
+WHY SAFE TO DELETE:
+  This script is a downstream viewer for audit_instance_reconciliation.py's
+  generated database. Since the audit is no longer re-run and the reconciliation
+  decisions are already reflected in the preprocessing scripts, neither the viewer
+  nor the database is needed anymore.
+
+--------------------------------------------------------------------------------
+FILE: inspect_unmatched_key_relationships.py
+WHAT IT DOES:
+  Also opens the same DuckDB reconciliation database. Creates two temporary
+  tables of distinct task_names, then queries to see how many unmatched instance
+  keys have a task_name that does exist under a different job (cross-job
+  mismatch pattern). Prints three reports about unmatched keys and definitions.
+WHY SAFE TO DELETE:
+  Companion deep-dive script to inspect_reconciliation_mismatches.py. Same
+  rationale — the investigation is done, findings incorporated. Safe to delete.
+
+--------------------------------------------------------------------------------
+FILE: show_heldout_ppo_comparison.py
+WHAT IT DOES:
+  Reads episode_metrics.csv from a specific held-out validation experiment
+  directory (ppo_20480_checkpoint_heldout_validation_20261014), then prints
+  per-scenario completion rates, mean metrics by profile and policy, paired
+  wait-time differences (PPO vs First Fit, PPO vs Least Loaded), grouped
+  averages with standard deviations, and percent change in mean waiting time.
+  Also prints an interpretation note about statistical limitations.
+WHY SAFE TO DELETE:
+  A presentation/reporting helper script for a specific validation run. The
+  results it displays are already saved as structured CSV files in the
+  experiments/results/ folder. No training or evaluation logic depends on it.
+
+================================================================================
+  SECTION 2 — ROOT-LEVEL ONE-OFF TEST SCRIPTS (NOT PART OF PYTEST SUITE)
+================================================================================
+These files follow a test_ prefix naming convention but are NOT discovered by
+pytest (because they contain no pytest-style function-level imports for collection,
+or their function signatures differ) and do NOT live under the tests/ folder.
+They are ad-hoc manual verification scripts.
+
+--------------------------------------------------------------------------------
+FILE: test_policy_comparison_contention.py
+WHAT IT DOES:
+  Creates a synthetic 1-machine scenario with 20 tasks each demanding 800% CPU
+  (oversubscribed, so they must queue). Runs both first_fit and least_loaded
+  policies through SchedulingEnvironment and asserts exact numeric outcomes:
+  exactly 8 tasks must wait, max wait must equal 100, final time must be 200.
+  Prints a comparison table.
+WHY SAFE TO DELETE:
+  This is a narrow point-in-time regression check for a very specific numeric
+  outcome. The official test suite under tests/ covers the same contention
+  correctness with cleaner infrastructure. The exact numeric assertions are
+  brittle to any simulator parameter changes.
+
+--------------------------------------------------------------------------------
+FILE: test_policy_comparison_mean_demand.py
+WHAT IT DOES:
+  Creates a 1-machine scenario with 130 tasks at mean real-world CPU demand
+  (80.855 CPU units, plan_mem 0.33463). Runs first_fit and least_loaded,
+  asserts completion of all 130 tasks, non-zero waits, and non-zero final time.
+  Prints a comparison table.
+WHY SAFE TO DELETE:
+  Another ad-hoc manual test. Functionally the same as tests/test_contention.py
+  and tests/test_environment.py. The mean-demand scenario values are better
+  maintained as part of the actual benchmark suite in experiments/.
+
+--------------------------------------------------------------------------------
+FILE: test_policy_comparison_10_machines.py
+WHAT IT DOES:
+  Builds a 10-machine fleet, runs 130 tasks with mean resource demand (80.855 CPU,
+  0.33463 memory) through first_fit and least_loaded, asserts all 130 complete
+  and that more than one machine is used. Prints a comparison table.
+WHY SAFE TO DELETE:
+  Manual scaling check. Superseded by the full benchmark scripts in
+  experiments/benchmark_scheduling_policies.py which cover many more machines
+  and workload profiles.
+
+--------------------------------------------------------------------------------
+FILE: test_policy_comparison_10_machine_contention.py
+WHAT IT DOES:
+  Similar to test_policy_comparison_10_machines.py but uses oversubscribed CPU
+  demand (800.0 units, much larger than machine capacity of 96) to force
+  contention across 10 machines. Asserts all 130 tasks complete and more than
+  one machine is used.
+WHY SAFE TO DELETE:
+  Another manual validation variant. The oversubscribed-demand scenario is
+  already explored in experiments/evaluate_10_machine_contention_diagnostic.py
+  with far more detail and output.
+
+--------------------------------------------------------------------------------
+FILE: test_simulator_contention.py
+WHAT IT DOES:
+  The simplest contention test: 1 machine (1 CPU unit), 2 tasks each needing
+  all of that CPU, arriving simultaneously. Asserts task_A starts at time 0,
+  task_B starts at time 10 (after task_A finishes), wait_time is exactly 10,
+  and final_time is exactly 15.
+WHY SAFE TO DELETE:
+  This exact scenario is reproduced by tests/test_contention.py in the official
+  test suite. Having it at the root level is redundant and confusing.
+
+--------------------------------------------------------------------------------
+FILE: test_simulator_contention_20_tasks.py
+WHAT IT DOES:
+  One machine with 96 CPU capacity, 20 tasks each demanding 800% CPU (all
+  must queue), asserts all complete, some wait, and manager invariants hold.
+WHY SAFE TO DELETE:
+  Variant of the contention test. Covered by the official tests/ suite and by
+  the experiments/ benchmark suite. Root-level location creates confusion about
+  whether it is part of the pytest collection.
+
+--------------------------------------------------------------------------------
+FILE: test_simulator_contention_130_tasks.py
+WHAT IT DOES:
+  One machine with 96 CPU, 130 tasks each at 80.855 CPU (real mean demand).
+  Asserts all 130 complete, some tasks wait, and simulator invariants hold after
+  the run. Prints completion count, number that waited, max wait, and final time.
+WHY SAFE TO DELETE:
+  Same rationale as the other root-level test_* scripts. The 130-task scale
+  and mean-demand values are better maintained in experiments/benchmark_*.py.
+
+================================================================================
+  SECTION 3 — "Understanding of Dataset" FOLDER (ENTIRE FOLDER)
+================================================================================
+This folder contains early exploratory scripts written to understand the raw
+Alibaba dataset before any preprocessing pipeline was built. All of these were
+one-time learning exercises.
+
+--------------------------------------------------------------------------------
+FILE: Understanding of Dataset/my_code_for_batch_instance.py
+WHAT IT DOES:
+  Hard-codes the full absolute Windows path to dataset/raw/batch_instance.csv,
+  defines the 14 column names manually, then opens the file and prints the first
+  5 data rows as dictionaries — one column name paired with its value per field.
+WHY SAFE TO DELETE:
+  Purely a personal scratch script written during initial dataset exploration.
+  Contains a hard-coded absolute path (C:\Users\gvkva\...) that only works on
+  the developer's own machine. The batch_instance.csv file structure is now
+  fully documented and used properly in data_cleaning/ and data_preprocessing/.
+  Zero value going forward; also not portable.
+
+SAFE TO DELETE: Understanding of Dataset/ (entire folder)
+
+The remaining four files in this folder (batch_instance.py, batch_task.py,
+machine_meta.py, machine_usage.py) are EDA notebooks converted to scripts.
+Each follows the same pattern: load a raw CSV, compute value counts, describe
+all columns, inspect null rates and distributions, print findings to stdout,
+and sometimes save a short summary CSV locally. They were the basis for
+deciding how to clean and preprocess each table. Their findings are embedded
+in data_cleaning/ and data_preprocessing/. They do not output files used by
+training or evaluation.
+
+  Understanding of Dataset/batch_instance.py   — EDA of raw batch_instance.csv
+  Understanding of Dataset/batch_task.py        — EDA of raw batch_task.csv
+  Understanding of Dataset/machine_meta.py      — EDA of raw machine_meta.csv
+  Understanding of Dataset/machine_usage.py     — EDA of raw machine_usage.csv
+  Understanding of Dataset/my_code_for_batch_instance.py — scratch row-printer
+
+================================================================================
+  SECTION 4 — experiments/ FOLDER: SUPERSEDED / INTERMEDIATE SCRIPTS
+================================================================================
+The experiments/ folder evolved through many iterations. Many scripts were
+created for a specific investigation and then superseded by a newer version, or
+were one-off diagnostics used to debug a problem that has since been resolved.
+
+--------------------------------------------------------------------------------
+FILE: experiments/train_final_dataset_maskable_ppo.py.backup
+WHAT IT DOES:
+  Byte-for-byte identical copy of experiments/train_final_dataset_maskable_ppo.py
+  (same size: 15,462 bytes). It is a verbatim file-system backup created before
+  a small edit was made to the live training script.
+WHY SAFE TO DELETE:
+  It is a manual backup file — not a version-controlled branch. The project
+  already uses git for version control (.git/ folder exists at root). Keeping
+  this .backup file alongside the live script creates confusion about which
+  version is authoritative. The git history preserves the original.
+
+--------------------------------------------------------------------------------
+FILE: experiments/run_trace_replay_1machine_diagnostic.py
+FILE: experiments/run_trace_replay_2machine_diagnostic.py
+FILE: experiments/run_trace_replay_3machine_diagnostic.py
+FILE: experiments/run_trace_replay_4machine_diagnostic.py
+FILE: experiments/run_trace_replay_8machine_preflight.py
+WHAT THEY DO:
+  Each file is a near-identical trace-replay diagnostic script that runs the
+  SchedulingEnvironment with a TraceReplayScenario over N machines (1, 2, 3,
+  4, or 8 respectively). Each measures task completion counts, timing, and
+  resource usage peaks for each baseline policy, then writes results to a
+  timestamped subfolder in experiments/results/. They differ only in the number
+  of machines they test.
+WHY SAFE TO DELETE:
+  These were incremental diagnostic runs used to verify the trace replay feature
+  worked correctly across fleet sizes. The trace replay functionality is now
+  validated by the official test suite (tests/). The experiments/evaluate_*.py
+  scripts serve the same purpose with far more comprehensive output. All result
+  files from these runs are already saved in experiments/results/.
+
+--------------------------------------------------------------------------------
+FILE: experiments/run_trace_replay_preflight.py
+WHAT IT DOES:
+  A more comprehensive version of the above: runs first_fit and least_loaded
+  over a trace-replay scenario across several machine counts (1, 2, 4, 8),
+  verifies invariants, and prints timing plus resource usage. More detailed than
+  the per-machine diagnostic variants.
+WHY SAFE TO DELETE:
+  Same rationale as the individual machine-count variants above. One-time
+  verification script whose conclusions are now baked into the main codebase.
+
+--------------------------------------------------------------------------------
+FILE: experiments/compare_penalty_assignments.py
+FILE: experiments/compare_penalty_assignments_matched_seed.py
+WHAT THEY DO:
+  Load penalty_model_assignment_comparison CSV files from experiments/evaluation/
+  and print cross-tabulations or pivot tables showing how three reward models
+  (alpha/beta/gamma) assign different tasks to different machines. The "matched_
+  seed" variant re-filters to a specific seed (42) and episode count (20k).
+WHY SAFE TO DELETE:
+  Intermediate analysis scripts from the reward-shaping investigation that led
+  to selecting the final "core_penalty" reward mode. The selected reward mode
+  is now fixed in all training scripts. These comparisons served their purpose.
+
+--------------------------------------------------------------------------------
+FILE: experiments/compare_before_after_task_fix.py
+WHAT IT DOES:
+  Reads two CSV files from experiments/evaluation/ (one labeled "before_task_fix"
+  and one "after"), computes mean completion rate and mean wait time for each
+  policy under each version, and prints a before-vs-after comparison table.
+WHY SAFE TO DELETE:
+  Created to verify that a bug fix (the "task fix") improved evaluation results.
+  The fix is merged; the before/after comparison is no longer needed operationally.
+
+--------------------------------------------------------------------------------
+FILE: experiments/compare_placement_policies.py
+WHAT IT DOES:
+  A 16-line helper that reads experiments/results/policy_comparison/results.csv
+  and prints mean completion rate and mean wait time grouped by policy. Very
+  thin wrapper — essentially a one-liner pandas groupby.
+WHY SAFE TO DELETE:
+  Replaced by the full benchmark scripts (benchmark_scheduling_policies.py,
+  benchmark_generalization.py) which produce structured output files and cover
+  many more scenarios.
+
+--------------------------------------------------------------------------------
+FILE: experiments/compare_rl_actions.py
+WHAT IT DOES:
+  Reads a diagnostic CSV of RL action choices (which machine the PPO agent
+  selected vs. which machine baselines selected) and prints summary statistics
+  on action agreement rates and wait-time differences.
+WHY SAFE TO DELETE:
+  One-off debug tool used when RL agent behavior seemed unexpected. The issue
+  was diagnosed and resolved; this file is no longer needed.
+
+--------------------------------------------------------------------------------
+FILE: experiments/compare_ppo_checkpoint_progression.py
+WHAT IT DOES:
+  Loads episode_metrics CSVs from multiple checkpoint folders within a single
+  PPO training run, then plots or prints how completion rate and mean wait time
+  evolved over training timesteps as checkpoints accumulated.
+WHY SAFE TO DELETE:
+  Training progression analysis for a specific run. Useful at the time to
+  decide when to stop training. The best checkpoint was selected and is now
+  the final model. No need to rerun this analysis.
+
+--------------------------------------------------------------------------------
+FILE: experiments/diagnose_reward_components.py
+FILE: experiments/diagnose_reward_placement_choices.py
+FILE: experiments/diagnose_rl_contention.py
+FILE: experiments/diagnose_rl_environment.py
+FILE: experiments/diagnose_50000_task_workload.py
+WHAT THEY DO:
+  These are debugging scripts from the reward engineering phase:
+  - diagnose_reward_components.py: decompose each step reward into sub-components
+    (wait_penalty, completion_bonus, contention_penalty) and print statistics.
+  - diagnose_reward_placement_choices.py: for each scheduling decision, show
+    which machine was chosen and what the resulting reward components were.
+  - diagnose_rl_contention.py: check whether simultaneous task allocations
+    create illegal resource over-commitment in the RL environment.
+  - diagnose_rl_environment.py: smoke-test the RL environment's observation
+    space, action mask shape, and step/reset cycle.
+  - diagnose_50000_task_workload.py: sample 50,000 tasks from the pool and
+    compute duration/CPU/memory percentiles to calibrate episode workload sizes.
+WHY SAFE TO DELETE:
+  All five scripts are one-time debugging / calibration tools. The reward mode
+  is fixed (core_penalty). Environment correctness is now covered by tests/.
+  The workload calibration is captured in calibrate_workload_profiles.py and in
+  the saved calibration CSV.
+
+--------------------------------------------------------------------------------
+FILE: experiments/audit_flow_time_post_fix.py
+FILE: experiments/audit_placement_policies.py
+FILE: experiments/audit_recorded_resource_contention.py
+FILE: experiments/audit_reward_components_post_fix.py
+FILE: experiments/audit_zero_duration_tasks.py
+FILE: experiments/audit_pilot_reward_components_4000.py
+FILE: experiments/audit_changed_penalty_assignments.py
+WHAT THEY DO:
+  A cluster of audit scripts each targeting a specific concern found during
+  development:
+  - audit_flow_time_post_fix.py: verifies flow_time (completion_time − arrival)
+    is non-negative after the task-fix patch.
+  - audit_placement_policies.py: checks that first_fit and least_loaded never
+    place a task on an over-committed machine across a large random workload.
+  - audit_recorded_resource_contention.py: reads evaluation CSVs and checks for
+    cases where simultaneous tasks on the same machine would exceed its capacity.
+  - audit_reward_components_post_fix.py: recalculates reward sub-components from
+    a post-fix evaluation CSV and checks they match what the simulator recorded.
+  - audit_zero_duration_tasks.py: scans task pool and preprocessed splits to
+    identify tasks with zero or negative duration values.
+  - audit_pilot_reward_components_4000.py: same as audit_reward_components but
+    targeting the 4000-machine pilot experiment.
+  - audit_changed_penalty_assignments.py: compares penalty credit assignments
+    between two model variants across matched-seed episodes.
+WHY SAFE TO DELETE:
+  Every concern that prompted these audits has been resolved (patched or accepted
+  as dataset noise). The official test suite in tests/ now enforces the invariants
+  that these one-off scripts verified. Keeping them adds maintenance confusion.
+
+--------------------------------------------------------------------------------
+FILE: experiments/analyze_changed_penalty_assignments.py
+FILE: experiments/analyze_maskable_results.py
+FILE: experiments/analyze_maskable_results_matched_seed.py
+FILE: experiments/analyze_maskable_results_post_fix.py
+FILE: experiments/analyze_multiseed_statistics.py
+FILE: experiments/analyze_trace_replay_resource_peaks.py
+FILE: experiments/analyze_trace_scenario_concurrency.py
+WHAT THEY DO:
+  Analysis scripts for intermediate model versions:
+  - analyze_changed_penalty_assignments.py: pivot-table comparing how many tasks
+    each reward model puts into each penalty tier, before vs. after a change.
+  - analyze_maskable_results.py: read maskable PPO evaluation CSVs and print a
+    summary table of completion rate, wait time, and flow time per model.
+  - analyze_maskable_results_matched_seed.py: same but filtered to matched seeds
+    and episode count (seed 42, 20k steps). 9 KB of boilerplate pandas.
+  - analyze_maskable_results_post_fix.py: same again but for the post-fix model
+    evaluation results.
+  - analyze_multiseed_statistics.py: compute mean ± std across seeds for a multi-
+    seed evaluation run and print a formatted statistics table.
+  - analyze_trace_replay_resource_peaks.py: for a specific 2-machine trace-replay
+    diagnostic run, compute peak CPU and memory per policy using event sweeping.
+  - analyze_trace_scenario_concurrency.py: counts how many tasks overlap at any
+    given time in a trace-replay scenario to estimate contention intensity.
+WHY SAFE TO DELETE:
+  All of these scripts analyze results from intermediate model versions that have
+  been superseded by the final trained model. The results they read are still on
+  disk in experiments/evaluation/ and experiments/results/ but do not need to be
+  regenerated or re-analyzed.
+
+--------------------------------------------------------------------------------
+FILE: experiments/run_training_workload_contention_check.py
+WHAT IT DOES:
+  Builds one episode of the training workload (same config as the final model's
+  training) and runs first_fit through it to count how many tasks had to wait.
+  Prints the contention ratio. Used to verify the training workload was
+  "sufficiently difficult."
+WHY SAFE TO DELETE:
+  One-time calibration check. The training configuration is fixed. No need to
+  re-verify the contention ratio.
+
+--------------------------------------------------------------------------------
+FILE: experiments/bounded_evaluation_task_pool.py
+WHAT IT DOES:
+  Creates a fixed-size, resource-bounded sub-sample of the task pool and saves it
+  to experiments/data/, intended for evaluation experiments where a consistent
+  task pool (not re-sampled each episode) is needed. Writes a CSV.
+WHY SAFE TO DELETE:
+  The output CSV it generates (bounded_eval_pool_seed42.csv or similar) was used
+  for some early evaluation experiments. The final evaluation scripts use the
+  standard eligible_task_pool_seed42.csv instead. This script is no longer called.
+
+--------------------------------------------------------------------------------
+FILE: experiments/inspect_dataset_scale.py
+WHAT IT DOES:
+  Reads the preprocessed batch_instance files and prints row counts plus basic
+  statistics (value counts of status field, CPU distribution percentiles).
+  An abbreviated version of the Understanding of Dataset analysis scripts.
+WHY SAFE TO DELETE:
+  Redundant subset of the EDA work done in Understanding of Dataset/. Results
+  were used to calibrate episode task counts. The calibration is done.
+
+--------------------------------------------------------------------------------
+FILE: experiments/interactive_workload_comparison.py
+WHAT IT DOES:
+  Generates two workload scenarios (one "light", one "heavy" using different
+  arrival_fraction values), runs both first_fit and least_loaded through each,
+  then prints a side-by-side comparison table showing completion rate, mean
+  wait, and makespan under each combination. Designed to be run interactively.
+WHY SAFE TO DELETE:
+  This is a demo/exploration script. The full workload comparison is done by
+  experiments/evaluate_varied_workload_profiles.py with far more depth and
+  saved outputs.
+
+--------------------------------------------------------------------------------
+FILE: experiments/test_baseline_contention.py
+FILE: experiments/test_v3_chunk_traversal.py
+WHAT THEY DO:
+  - test_baseline_contention.py: tiny smoke test of first_fit / least_loaded
+    across a 130-task single-machine workload. Very similar to the root-level
+    test_simulator_contention_130_tasks.py. Asserts completion only.
+  - test_v3_chunk_traversal.py: tests that the "v3" chunked dataset traversal
+    logic (used in train_final_dataset_maskable_ppo_v3.py) steps through chunks
+    in the correct order and wraps around properly.
+WHY SAFE TO DELETE:
+  The baseline contention test is redundant with tests/test_contention.py.
+  The v3 chunk traversal test is specific to the v3 training script which itself
+  is an experimental variant — train_final_dataset_maskable_ppo_v3.py is not
+  the script used for the final model. Both tests are therefore either redundant
+  or orphaned.
+
+--------------------------------------------------------------------------------
+FILE: experiments/train_ppo_smoke_test.py
+WHAT IT DOES:
+  Runs a very short (~512 timestep) MaskablePPO training loop using the same
+  environment setup as the main training scripts, but with minimal timesteps and
+  no checkpoint saving. Used to confirm that the training pipeline initializes
+  without crashing before launching a long run.
+WHY SAFE TO DELETE:
+  The smoke test was run manually before long training sessions. Now that training
+  is complete and the model is saved, this script has no ongoing purpose.
+
+--------------------------------------------------------------------------------
+FILE: experiments/train_three_reward_models.py
+FILE: experiments/train_three_maskable_reward_models.py
+FILE: experiments/train_three_maskable_reward_models_matched_seed.py
+FILE: experiments/train_three_maskable_reward_models_post_fix.py
+WHAT THEY DO:
+  Ablation training scripts that trained three separate PPO agents under three
+  different reward configurations (alpha/beta/gamma naming) to compare reward
+  shaping strategies:
+  - train_three_reward_models.py: original non-maskable PPO 3-way ablation.
+  - train_three_maskable_reward_models.py: MaskablePPO version of the ablation.
+  - train_three_maskable_reward_models_matched_seed.py: rerun with matched seed.
+  - train_three_maskable_reward_models_post_fix.py: rerun after the task-fix
+    patch to verify the winner still won.
+WHY SAFE TO DELETE:
+  The ablation study is complete. The winning reward mode (core_penalty) is now
+  hardcoded into all final training scripts. These ablation scripts trained
+  models that are superseded by the final model. They are not part of any
+  ongoing training pipeline.
+
+--------------------------------------------------------------------------------
+FILE: experiments/evaluate_three_reward_models.py
+FILE: experiments/evaluate_three_maskable_reward_models.py
+FILE: experiments/evaluate_three_maskable_reward_models_expanded_200.py
+FILE: experiments/evaluate_three_maskable_reward_models_matched_seed.py
+FILE: experiments/evaluate_three_maskable_reward_models_post_fix.py
+WHAT THEY DO:
+  Matching evaluation scripts for each of the ablation train_three_* scripts
+  above. Each loads the three model checkpoints, runs them through the simulator
+  benchmark, and writes results to experiments/evaluation/.
+WHY SAFE TO DELETE:
+  The ablation evaluation is complete. These scripts evaluated model variants
+  that have been retired. The final model evaluation is handled by
+  evaluate_final_dataset_ppo.py, evaluate_final_candidate_*.py, etc.
+
+--------------------------------------------------------------------------------
+FILE: experiments/evaluate_4000_machine_pilot.py
+FILE: experiments/evaluate_4000_machine_final_candidate.py
+FILE: experiments/evaluate_4000_machine_stress_test.py
+WHAT THEY DO:
+  These scripts attempt to evaluate PPO models on a 4000-machine fleet. Each
+  loads 4000 real machine metadata rows, creates a very large scenario, runs
+  the PPO agent and baselines, and writes results. The "pilot" script was the
+  first attempt; final_candidate was the validated version; stress_test adds
+  high-arrival-rate scenarios.
+WHY SAFE TO DELETE:
+  The 4000-machine scale experiment was a feasibility probe that concluded the
+  current RL environment does not scale efficiently to 4000 machines within
+  acceptable training time. The finding is documented. These very long scripts
+  (each ~13 KB) are no longer part of the evaluation plan.
+
+--------------------------------------------------------------------------------
+FILE: experiments/evaluate_ppo_contention.py
+FILE: experiments/evaluate_high_contention_diagnostic.py
+FILE: experiments/evaluate_10_machine_contention_diagnostic.py
+WHAT THEY DO:
+  - evaluate_ppo_contention.py: runs the PPO model and baselines under a high
+    contention (low arrival fraction) scenario on the standard 8-machine config.
+  - evaluate_high_contention_diagnostic.py: same idea but adds more diagnostic
+    columns to the output (queue length, contention ratios).
+  - evaluate_10_machine_contention_diagnostic.py: contention diagnostics using
+    10 machines.
+WHY SAFE TO DELETE:
+  These were intermediate evaluations during contention tuning. The final set
+  of evaluation scripts (evaluate_final_candidate_varied_contention.py, etc.)
+  supersedes all of them. Results from these runs are already saved in
+  experiments/results/ for historical reference.
+
+--------------------------------------------------------------------------------
+FILE: experiments/evaluate_fleet_load_calibration.py
+FILE: experiments/evaluate_fleet_load_calibration_10m.py
+WHAT THEY DO:
+  Run the PPO agent and baselines under a range of fleet-load levels (varied
+  arrival fractions) to calibrate the relationship between workload intensity
+  and scheduling performance. The _10m variant does the same with 10 machines.
+WHY SAFE TO DELETE:
+  Calibration experiments whose conclusions informed the final workload profile
+  choices. The calibration CSV (workload_profile_calibration_50000_seed42.csv)
+  captures the key results. These scripts do not need to be rerun.
+
+--------------------------------------------------------------------------------
+FILE: experiments/evaluate_final_dataset_ppo_v1_vs_v2.py
+WHAT IT DOES:
+  Side-by-side evaluation that runs ppo_v1 and ppo_v2 model checkpoints through
+  the same held-out scenario set and compares their performance. Writes a
+  combined results CSV.
+WHY SAFE TO DELETE:
+  The v1 vs. v2 comparison was used to select which model checkpoint to promote.
+  The selection was made; v1 was chosen. The comparison script is no longer needed.
+
+--------------------------------------------------------------------------------
+FILE: experiments/evaluate_final_dataset_ppo_stress.py
+WHAT IT DOES:
+  Runs the final PPO model under a very high-load ("stress") scenario with
+  arrival_fraction = 0.005, forcing extreme contention. Measures whether the
+  model degrades gracefully or makes invalid placements under stress.
+WHY SAFE TO DELETE:
+  The stress test was run once to document the model's behavior under extreme
+  conditions. Finding: performance degrades gracefully, no safety violations.
+  This is a one-time characterization, not an ongoing evaluation.
+
+--------------------------------------------------------------------------------
+FILE: experiments/evaluate_four_ppo_models_with_baselines.py
+WHAT IT DOES:
+  Loads four different PPO checkpoints (different training lengths or seeds) and
+  evaluates each alongside first_fit and least_loaded on the same fixed scenario
+  set. Used to pick the best checkpoint across a progression.
+WHY SAFE TO DELETE:
+  Checkpoint-selection script. Selection is complete. The winner is the final
+  model. This script references checkpoint paths that may no longer exist on disk.
+
+--------------------------------------------------------------------------------
+FILE: experiments/validate_final_candidate_multiseed.py
+WHAT IT DOES:
+  Runs the final selected PPO model across 10 held-out seeds (5 per workload
+  profile) and computes paired t-statistics and 95% confidence intervals for
+  mean wait time, completion rate, and flow time versus each baseline policy.
+  A rigorous statistical validation script.
+WHY SAFE TO DELETE:
+  This was the definitive statistical validation run. Results are saved to
+  experiments/results/ and documented in README/reports. The validation is
+  complete and does not need to be rerun unless the model changes.
+
+--------------------------------------------------------------------------------
+FILE: experiments/workload_profile_calibration_50000_seed42.csv
+WHAT IT DOES:
+  A small CSV (1 KB) summarizing the relationship between arrival_fraction values
+  and observed contention metrics (average wait time, completion rate) from the
+  calibration experiment. Used as a lookup when choosing arrival_fraction for
+  new experiments.
+WHY SAFE TO DELETE:
+  This is a generated artifact (output of evaluate_fleet_load_calibration.py),
+  not source code. It is also very small and easy to regenerate. However, it is
+  genuinely useful as a reference: if you run new experiments you may want to
+  keep this. SAFE TO DELETE if no new experiments are planned.
+
+--------------------------------------------------------------------------------
+FILE: experiments/ppo_v3_episode_capacity_benchmark.json
+WHAT IT DOES:
+  A 2.7 KB JSON file recording the results of benchmark_v3_episode_capacity.py:
+  how many tasks per episode the v3 training environment can handle within a
+  given wall-clock budget at different machine counts. Used to set tasks_per_episode
+  for the v3 training run.
+WHY SAFE TO DELETE:
+  Generated output file from a benchmark run that informed the v3 training config.
+  v3 is an experimental variant that was not selected as the final model. Both
+  the JSON and benchmark_v3_episode_capacity.py are vestiges of that branch.
+
+================================================================================
+  SECTION 5 — experiments/ FOLDER: V3 TRAINING VARIANT (NOT FINAL MODEL)
+================================================================================
+The v3 training approach used a chunked-dataset traversal strategy instead of
+random sampling. It was explored as an alternative but was not selected for the
+final model. All scripts specific to v3 are vestigial.
+
+--------------------------------------------------------------------------------
+FILE: experiments/train_final_dataset_maskable_ppo_v3.py
+WHAT IT DOES:
+  A 20 KB training script that implements a "v3" curriculum: the task pool is
+  divided into fixed-size chunks and episodes cycle through them in order rather
+  than sampling randomly. Includes a chunk_traversal helper, separate
+  episode_capacity pre-computation, and different hyperparameter defaults than
+  the main training script.
+WHY SAFE TO DELETE:
+  The final model was trained with the random-sampling approach (train_final_dataset
+  _maskable_ppo.py). The v3 chunked approach was an experiment that did not improve
+  results. Everything v3-specific can be removed.
+
+--------------------------------------------------------------------------------
+FILE: experiments/benchmark_v3_episode_capacity.py
+WHAT IT DOES:
+  Benchmarks how long a single episode takes under the v3 environment at various
+  machine and task-count combinations. Results were used to set the v3 config.
+WHY SAFE TO DELETE:
+  Companion to train_final_dataset_maskable_ppo_v3.py. Same rationale.
+
+================================================================================
+  SECTION 6 — validation/ FOLDER (ENTIRE FOLDER)
+================================================================================
+The validation/ folder contains four sub-folders of scripts written to validate
+the raw and cleaned dataset files. All of these were run once during dataset
+preparation; their findings are already incorporated into the data_cleaning/
+scripts.
+
+  validation/data_quality/
+    - audit_batch_instance_resource_missing.py: Checks what fraction of batch
+      instance rows have null plan_cpu or plan_mem. Prints a null-rate table.
+    - audit_batch_task_cardinality.py: Counts unique task_name / job_name
+      combinations and checks for duplicate composite keys.
+    - integrated_data_validation.py: A 15 KB end-to-end validation that checks
+      referential integrity across all four cleaned tables (task, instance,
+      machine_meta, machine_usage), prints cardinality statistics, and verifies
+      temporal ordering.
+    - integrated_data_validation_v2.py: Updated version of the same script after
+      a few column renames. The v1 is now superseded by v2.
+    - stage1_data_contract_check.py: Quick check that required columns exist in
+      each cleaned CSV and that no column is entirely null. First validation gate.
+
+  validation/mismatch_investigation/
+    - inspect_unmatched_records.py: Loads cleaned task and instance tables, finds
+      instance records with no matching task definition, and prints examples with
+      surrounding context.
+    - investigate_job_mismatches.py: Investigates cases where the same task_name
+      appears under multiple job_names (cross-job task sharing).
+    - investigate_job_mismatches_targeted.py: Narrower version targeting a
+      specific set of task_names known to appear in mismatches.
+    - investigate_job_mismatches_v2.py: Updated version using DuckDB for faster
+      processing of the same mismatch patterns. Supersedes v1.
+    - investigate_unmatched_keys.py: Broader survey of keys that appear in
+      instance splits but not in the task table, or vice versa.
+    - trace_machine_2739.py: Traces all records for a specific machine ID
+      (machine_2739) across all cleaned tables — written to debug an anomaly.
+    - trace_unmatched_source_records.py: Follows specific unmatched source
+      records across all four tables to find where they diverge.
+
+  validation/relationship_audits/
+    - audit_batch_instance_final_splits.py: Post-split validation that training/
+      validation/testing splits respect the declared split ratios and have no
+      row overlap.
+    - audit_machine_timestamp_alignment.py: Checks that machine telemetry rows
+      and task execution records fall within the same timestamp range.
+    - audit_machine_usage_relationship.py: Verifies that machine_usage rows can
+      be joined to machine_meta on machine_id without orphan records.
+    - audit_task_instance_job_relationship.py: Full referential integrity check
+      between the task and instance tables on the composite key.
+    - audit_task_instance_job_relationship_v2.py: Faster DuckDB version of the
+      same referential integrity check. Supersedes v1.
+    - finalize_relationship_validation.py: Summary validation run before locking
+      the dataset — confirms all checks pass and prints a go/no-go table.
+    - relationship_audit_keys.py: Extracts and prints the set of composite keys
+      used in each table to manually verify overlaps.
+
+  validation/temporal_validation/
+    - validate_simulator_temporal_contract.py: Verifies that all cleaned task
+      records satisfy the temporal contract expected by the simulator: start_time
+      < end_time, non-negative duration, no future-dated records relative to the
+      dataset epoch.
+
+ALL of the above: SAFE TO DELETE. The dataset is finalized and stable. Rerunning
+these checks would produce the same results. The official test_environment.py
+and test_machine_state.py in tests/ enforce the runtime data contracts.
+
+================================================================================
+  SECTION 7 — analysis/ FOLDER (ENTIRE FOLDER)
+================================================================================
+The analysis/ folder contains statistical and distributional study scripts that
+were used to understand workload characteristics before deciding on simulator
+parameters.
+
+  analysis/resource_analysis/
+    - analyze_planned_vs_observed_resources.py: Reads both batch_task (planned
+      CPU/memory) and batch_instance (actual measured CPU/memory) and computes
+      planned-to-actual ratios. Prints histograms and percentile tables.
+    - analyze_resource_relationships.py: Correlation analysis between plan_cpu,
+      plan_mem, duration, and observed (cpu_avg, mem_avg). Saves a scatter-
+      plot matrix or prints correlation coefficients.
+    - audit_task_identity.py: Checks whether task_name uniquely identifies a
+      task or whether the same name appears with different resource requests.
+      Saves task_identity_audit_examples.csv and task_identity_audit_summary.csv.
+    - task_identity_audit_examples.csv: Generated output of audit_task_identity.py
+      (11 KB). Example rows where task identity was ambiguous.
+    - task_identity_audit_summary.csv: Generated summary output of the same script
+      (389 bytes). Aggregated statistics about identity conflicts.
+
+  analysis/telemetry_analysis/
+    - analyze_telemetry_intervals.py: Computes the distribution of gaps between
+      consecutive machine_usage telemetry records per machine. Identifies machines
+      with very sparse or very dense reporting.
+    - analyze_telemetry_intervals_duckdb.py: DuckDB-accelerated version of the
+      same analysis (processes larger chunks faster). Supersedes the pandas version.
+    - inspect_telemetry_timestamps.py: Reads the first and last timestamps from
+      machine_usage and prints the epoch range. Simpler companion to the interval
+      analysis.
+
+  analysis/workload_analysis/
+    - analyze_workload_characteristics.py: Comprehensive 16 KB analysis of the
+      preprocessed task pool: value-count distributions, duration deciles, CPU
+      request distributions, memory request distributions, and correlation matrix.
+      Most comprehensive of the workload study scripts.
+    - analyze_workload_percentiles.py: Computes and prints CPU, memory, and
+      duration at the 50th, 75th, 90th, 95th, and 99th percentiles for the
+      task pool. Used to set workload profile boundaries.
+    - analyze_workload_regimes.py: Groups tasks into "light", "medium", and
+      "heavy" regime bins based on CPU and duration percentile cutoffs, computes
+      regime membership counts and resource distributions. 18 KB.
+
+ALL of the above: SAFE TO DELETE. The analysis findings were used to calibrate
+the RL environment parameters and workload profiles. Those decisions are now
+locked into the training scripts and scenario configuration files.
+
+================================================================================
+  SECTION 8 — scenario/ FOLDER (ENTIRE FOLDER)
+================================================================================
+The scenario/ folder contains scripts for managing and validating scenario files.
+
+  scenario/scenario_management/
+    - create_workload_scenario_manifest.py: Reads the task pool, segments it into
+      workload profile buckets (by CPU+duration percentile), assigns scenario IDs,
+      and writes a manifest CSV listing each scenario's profile, seed, and task
+      selection. A 11 KB script.
+
+  scenario/scenario_validation/
+    - validate_final_scenario_manifest.py: Reads the generated manifest and checks
+      that each scenario file is internally consistent (correct task count, no
+      duplicate IDs, valid resource values).
+    - validate_workload_regimes.py: Cross-checks that tasks in each scenario
+      fall within the workload profile's resource boundaries (light/medium/heavy).
+
+WHY SAFE TO DELETE:
+  The manifests and scenarios themselves are already generated and live in
+  experiments/scenarios/ subfolders. The validation scripts were run once on
+  those generated files and confirmed they were correct. The simulator's
+  scenario_loader.py handles scenario generation dynamically; these static
+  manifest scripts are not called by any training or evaluation code.
+
+================================================================================
+  SECTION 9 — data_documentation/ FOLDER (ENTIRE FOLDER)
+================================================================================
+FILE: data_documentation/create_data_dictionary.py
+WHAT IT DOES:
+  A 13 KB script that reads every cleaned and preprocessed CSV file, inspects
+  column dtypes, null rates, cardinality, and example values, then writes a
+  human-readable data dictionary text file listing all this information.
+WHY SAFE TO DELETE:
+  The data dictionary was generated once for documentation purposes. It is a
+  generated artifact, not active code. The generated dictionary should be kept
+  if you want the documentation, but this script that regenerates it is not
+  needed in normal project operations.
+
+SAFE TO DELETE: data_documentation/ (entire folder including the script)
+
+================================================================================
+  SECTION 10 — ROOT-LEVEL GENERATED ARTIFACT FILES
+================================================================================
+FILE: project_evaluation_inventory.txt
+WHAT IT DOES:
+  A large text file listing all evaluation result file paths in the experiments/
+  results/ directory, generated by a find/dir command or a short script. Serves
+  as an index of what result files exist on disk.
+WHY SAFE TO DELETE:
+  A generated inventory snapshot. Becomes stale as new experiments are run.
+  The actual results are in experiments/results/ and can be listed at any time.
+
+FILE: project_source_inventory.txt
+WHAT IT DOES:
+  Similar to the above but lists all Python source files in the project. Another
+  generated snapshot of the file system at a point in time.
+WHY SAFE TO DELETE:
+  A generated inventory snapshot. Also stale. This report (unnecessary_files_report.txt)
+  itself provides more actionable information.
+
+================================================================================
+  SECTION 11 — experiments/audits/ FOLDER (GENERATED ARTIFACTS)
+================================================================================
+FOLDER: experiments/audits/
+  - instance_reconciliation.duckdb (~450 MB): The large DuckDB database generated
+    by audit_instance_reconciliation.py. Not source code. A binary artifact.
+  - instance_reconciliation.duckdb.tmp/ (folder): Temporary spill directory used
+    by DuckDB during the audit. Should be empty or near-empty after the run.
+  - instance_count_mismatches.csv (28.5 MB): Generated CSV output of the audit,
+    listing every task composite key where declared instance count ≠ observed.
+  - instance_reconciliation_summary.txt: 716-byte text summary of the audit.
+
+WHY SAFE TO DELETE:
+  These are all GENERATED OUTPUT ARTIFACTS from audit_instance_reconciliation.py,
+  not source code. The DuckDB file alone consumes ~450 MB of disk. Deleting these
+  frees significant space with zero impact on training or evaluation.
+
+================================================================================
+  QUICK SUMMARY TABLE
+================================================================================
+
+ROOT-LEVEL FILES (SAFE TO DELETE):
+  analyze_evaluation_contention.py       (1.7 KB)  — one-off contention analysis
+  audit_instance_reconciliation.py       (5.5 KB)  — one-off DuckDB audit
+  audit_task_multiplicity.py             (1.6 KB)  — EDA stats on task table
+  compare_declared_instance_counts.py    (1.3 KB)  — row count sanity check
+  diagnose_evaluation_contention.py      (4.5 KB)  — debugging script (fixed)
+  inspect_dataset_headers.py             (0.7 KB)  — column header printer
+  inspect_reconciliation_mismatches.py   (2.6 KB)  — DuckDB audit viewer
+  inspect_unmatched_key_relationships.py (2.4 KB)  — DuckDB audit viewer
+  show_heldout_ppo_comparison.py         (4.4 KB)  — results displayer
+  test_policy_comparison_contention.py   (2.2 KB)  — ad-hoc test (redundant)
+  test_policy_comparison_mean_demand.py  (2.2 KB)  — ad-hoc test (redundant)
+  test_policy_comparison_10_machines.py  (2.3 KB)  — ad-hoc test (redundant)
+  test_policy_comparison_10_machine_contention.py (2.3 KB) — ad-hoc test
+  test_simulator_contention.py           (1.9 KB)  — ad-hoc test (redundant)
+  test_simulator_contention_20_tasks.py  (1.6 KB)  — ad-hoc test (redundant)
+  test_simulator_contention_130_tasks.py (1.6 KB)  — ad-hoc test (redundant)
+  project_evaluation_inventory.txt       (9.2 KB)  — stale generated index
+  project_source_inventory.txt           (13.1 KB) — stale generated index
+
+ENTIRE FOLDERS SAFE TO DELETE:
+  Understanding of Dataset/              — early EDA scripts (5 files)
+  analysis/                              — workload/resource/telemetry analysis
+  validation/                            — dataset validation scripts (20 files)
+  scenario/                              — scenario manifest scripts (3 files)
+  data_documentation/                    — data dictionary generator (1 file)
+  experiments/audits/                    — generated artifacts (~480 MB!)
+
+INDIVIDUAL FILES IN experiments/:
+  train_final_dataset_maskable_ppo.py.backup
+  run_trace_replay_1machine_diagnostic.py
+  run_trace_replay_2machine_diagnostic.py
+  run_trace_replay_3machine_diagnostic.py
+  run_trace_replay_4machine_diagnostic.py
+  run_trace_replay_8machine_preflight.py
+  run_trace_replay_preflight.py
+  compare_penalty_assignments.py
+  compare_penalty_assignments_matched_seed.py
+  compare_before_after_task_fix.py
+  compare_placement_policies.py
+  compare_rl_actions.py
+  compare_ppo_checkpoint_progression.py
+  diagnose_reward_components.py
+  diagnose_reward_placement_choices.py
+  diagnose_rl_contention.py
+  diagnose_rl_environment.py
+  diagnose_50000_task_workload.py
+  audit_flow_time_post_fix.py
+  audit_placement_policies.py
+  audit_recorded_resource_contention.py
+  audit_reward_components_post_fix.py
+  audit_zero_duration_tasks.py
+  audit_pilot_reward_components_4000.py
+  audit_changed_penalty_assignments.py (analyze_changed_penalty_assignments.py)
+  analyze_maskable_results.py
+  analyze_maskable_results_matched_seed.py
+  analyze_maskable_results_post_fix.py
+  analyze_multiseed_statistics.py
+  analyze_trace_replay_resource_peaks.py
+  analyze_trace_scenario_concurrency.py
+  run_training_workload_contention_check.py
+  bounded_evaluation_task_pool.py
+  inspect_dataset_scale.py
+  interactive_workload_comparison.py
+  test_baseline_contention.py
+  test_v3_chunk_traversal.py
+  train_ppo_smoke_test.py
+  train_three_reward_models.py
+  train_three_maskable_reward_models.py
+  train_three_maskable_reward_models_matched_seed.py
+  train_three_maskable_reward_models_post_fix.py
+  evaluate_three_reward_models.py
+  evaluate_three_maskable_reward_models.py
+  evaluate_three_maskable_reward_models_expanded_200.py
+  evaluate_three_maskable_reward_models_matched_seed.py
+  evaluate_three_maskable_reward_models_post_fix.py
+  evaluate_4000_machine_pilot.py
+  evaluate_4000_machine_final_candidate.py
+  evaluate_4000_machine_stress_test.py
+  evaluate_ppo_contention.py
+  evaluate_high_contention_diagnostic.py
+  evaluate_10_machine_contention_diagnostic.py
+  evaluate_fleet_load_calibration.py
+  evaluate_fleet_load_calibration_10m.py
+  evaluate_final_dataset_ppo_v1_vs_v2.py
+  evaluate_final_dataset_ppo_stress.py
+  evaluate_four_ppo_models_with_baselines.py
+  validate_final_candidate_multiseed.py
+  workload_profile_calibration_50000_seed42.csv
+  ppo_v3_episode_capacity_benchmark.json
+  train_final_dataset_maskable_ppo_v3.py
+  benchmark_v3_episode_capacity.py
+
+TOTAL: ~57 files and 5 entire directories are safe to delete.
+       The experiments/audits/ folder alone frees approximately 480 MB of disk space.
+
+================================================================================
+  END OF REPORT
+================================================================================

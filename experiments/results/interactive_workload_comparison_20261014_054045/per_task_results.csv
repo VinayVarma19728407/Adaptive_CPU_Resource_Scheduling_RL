@@ -1,0 +1,16 @@
+policy,scenario_task_id,task_name,job_name,arrival_time,start_time,completion_time,wait_time,flow_time,machine_id,allocated_cpu,allocated_memory,baseline_duration,status,reason,invalid_action_count
+First Fit,manual_0001,web_server,job_1,0.0,0.0,30.0,0.0,30.0,manual_machine_001,40.0,20.0,30.0,completed,,
+First Fit,manual_0002,database,job_2,0.0,0.0,50.0,0.0,50.0,manual_machine_002,60.0,35.0,50.0,completed,,
+First Fit,manual_0003,analytics,job_3,1.0,1.0,21.0,0.0,20.0,manual_machine_001,30.0,25.0,20.0,completed,,
+First Fit,manual_0004,image_processing,job_4,2.0,30.0,90.0,28.0,88.0,manual_machine_001,80.0,40.0,60.0,completed,,
+First Fit,manual_0005,cache_service,job_5,3.0,3.0,18.0,0.0,15.0,manual_machine_001,20.0,15.0,15.0,completed,,
+Least Loaded,manual_0001,web_server,job_1,0.0,0.0,30.0,0.0,30.0,manual_machine_001,40.0,20.0,30.0,completed,,
+Least Loaded,manual_0002,database,job_2,0.0,0.0,50.0,0.0,50.0,manual_machine_002,60.0,35.0,50.0,completed,,
+Least Loaded,manual_0003,analytics,job_3,1.0,1.0,21.0,0.0,20.0,manual_machine_001,30.0,25.0,20.0,completed,,
+Least Loaded,manual_0004,image_processing,job_4,2.0,30.0,90.0,28.0,88.0,manual_machine_001,80.0,40.0,60.0,completed,,
+Least Loaded,manual_0005,cache_service,job_5,3.0,3.0,18.0,0.0,15.0,manual_machine_002,20.0,15.0,15.0,completed,,
+PPO 20480,manual_0005,cache_service,job_5,3.0,3.0,18.0,0.0,15.0,manual_machine_002,20.0,15.0,15.0,completed,,0.0
+PPO 20480,manual_0003,analytics,job_3,1.0,1.0,21.0,0.0,20.0,manual_machine_001,30.0,25.0,20.0,completed,,0.0
+PPO 20480,manual_0001,web_server,job_1,0.0,0.0,30.0,0.0,30.0,manual_machine_001,40.0,20.0,30.0,completed,,0.0
+PPO 20480,manual_0002,database,job_2,0.0,0.0,50.0,0.0,50.0,manual_machine_002,60.0,35.0,50.0,completed,,0.0
+PPO 20480,manual_0004,image_processing,job_4,2.0,30.0,90.0,28.0,88.0,manual_machine_001,80.0,40.0,60.0,completed,,0.0

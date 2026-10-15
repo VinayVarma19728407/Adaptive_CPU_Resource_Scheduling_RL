@@ -1,0 +1,4 @@
+policy,tasks,completed,unschedulable,completion_rate,mean_wait_time,total_wait_time,mean_flow_time,makespan
+first_fit,3,3,0,1.0,3.3333333333333335,10.0,7.333333333333333,11.0
+least_loaded,3,3,0,1.0,3.3333333333333335,10.0,7.333333333333333,11.0
+PPO,3,3,0,1.0,0.3333333333333333,1.0,4.333333333333333,10.0

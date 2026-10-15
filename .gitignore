@@ -5,3 +5,7 @@ Old/
 dataset/raw/
 dataset/cleaned/
 dataset/preprocessed/
+# Large generated audit and feature artifacts
+*.duckdb
+*.duckdb.tmp/
+*.f64

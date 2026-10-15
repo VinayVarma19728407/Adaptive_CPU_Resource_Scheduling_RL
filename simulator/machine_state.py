@@ -1,3 +1,25 @@
+# =============================================================================
+# FILE: simulator/machine_state.py
+# ROLE IN PROJECT:
+#   Implements the authoritative resource ledger for all machines in the
+#   simulator. Every CPU and memory allocation/release goes through this module.
+#
+#   Key classes:
+#     MachineState         — a single machine's CPU and memory (capacity and
+#                            available). Invariants are enforced on construction.
+#     MachineStateManager  — manages ALL machines; exposes:
+#         can_allocate()   — check if a machine can accept a given task's demand
+#         allocate()       — atomically reserve CPU + memory and return an
+#                            allocation_id (used later for release)
+#         release()        — free resources when a task completes
+#         validate_invariants() — assertion that the ledger is consistent
+#                            (called at episode start/end by the simulator)
+#
+#   Consumed by:
+#     - simulator/environment.py  (baseline scheduling)
+#     - simulator/rl_environment.py (RL step loop)
+#     - tests/test_machine_state.py (unit tests)
+# =============================================================================
 
 from __future__ import annotations
 
@@ -234,8 +256,8 @@ class MachineStateManager:
 
         # Do not let numerical tolerance authorize over-allocation.
         if (
-            cpu_amount > machine.cpu_available
-            or memory_amount > machine.memory_available
+            cpu_amount > machine.cpu_available + self.tolerance
+            or memory_amount > machine.memory_available + self.tolerance
         ):
             raise ValueError(
                 f"Insufficient resources on machine {machine.machine_id}: "

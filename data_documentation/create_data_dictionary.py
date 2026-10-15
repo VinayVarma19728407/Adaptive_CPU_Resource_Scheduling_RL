@@ -1,9 +1,51 @@
 """
-Create Data Dictionary and Metadata Schema.
+============================================================
+File: create_data_dictionary.py
+Module: data_documentation
+============================================================
+Generates a comprehensive data dictionary CSV document that
+catalogues every column across all four Alibaba cluster dataset
+tables used in the Adaptive Multi-Core CPU Scheduler RL project.
 
-This script generates a comprehensive data dictionary document and JSON schema mapping for all dataset tables.
-It inspects column types, value ranges, constraints, and descriptions across batch_task, batch_instance, machine_meta,
-and machine_usage tables to maintain schema documentation.
+The data dictionary captures the following metadata for each
+column in each dataset:
+  - dataset:             which table the column belongs to.
+  - column_name:         exact column name used in the CSV files.
+  - data_type:           logical type (numeric, object, etc.).
+  - role:                semantic role (identifier, resource, temporal,
+                          categorical, encoded, derived, etc.).
+  - description:         human-readable description of the field.
+  - preprocessing_status: what transformations were applied or will
+                          be applied during the cleaning/preprocessing
+                          stages.
+  - missing_allowed:     whether NaN values are permitted to remain
+                         in the final preprocessed output.
+  - downstream_use:      how the field is used in the RL environment
+                         or model training.
+  - notes:               additional context such as encoding maps,
+                         cardinality counts, or special handling.
+
+Key Components:
+  - add(): helper function that appends a single column's metadata
+    record to the internal rows list.
+  - Covers batch_task (14 columns), machine_meta (7 columns),
+    machine_usage (7 columns), and batch_instance (15 columns).
+  - Assembles all records into a pandas DataFrame and writes to CSV.
+
+Inputs:
+  - No external file inputs; all metadata is hardcoded based on the
+    project's data analysis and cleaning/preprocessing decisions.
+
+Outputs:
+  - dataset/data_dictionary.csv: a structured CSV with one row per
+    column per dataset, containing full schema documentation for
+    all 43 documented fields across the four tables.
+
+Project Module:
+  Standalone documentation utility in the data_documentation module
+  of the Adaptive Multi-Core CPU Scheduler RL pipeline. Intended
+  for reference by all pipeline stages and for project reporting.
+============================================================
 """
 
 import os

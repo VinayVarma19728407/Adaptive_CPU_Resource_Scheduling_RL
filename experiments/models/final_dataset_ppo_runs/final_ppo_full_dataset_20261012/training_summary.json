@@ -1,0 +1,18 @@
+{
+  "status": "training_completed",
+  "timesteps_requested": 14000000,
+  "timesteps_completed": 14000128,
+  "elapsed_seconds": 33514.572,
+  "elapsed_minutes": 558.576,
+  "model_file": "C:\\Users\\gvkva\\Desktop\\My ongoing projects\\Machine Learning Project\\Adaptive-Multi-Core-CPU-Scheduler-RL\\experiments\\models\\final_dataset_ppo_runs\\final_ppo_full_dataset_20261012\\final_ppo_full_dataset.zip",
+  "run_directory": "C:\\Users\\gvkva\\Desktop\\My ongoing projects\\Machine Learning Project\\Adaptive-Multi-Core-CPU-Scheduler-RL\\experiments\\models\\final_dataset_ppo_runs\\final_ppo_full_dataset_20261012",
+  "dataset_exposure": {
+    "eligible_pool_records": 13446871,
+    "placement_decisions": 14000128,
+    "unique_records_exposed": 13446871,
+    "coverage_percent": 100.0,
+    "dataset_pass_started_zero_based": 1,
+    "records_consumed_current_pass": 553472,
+    "full_unique_record_coverage": true
+  }
+}

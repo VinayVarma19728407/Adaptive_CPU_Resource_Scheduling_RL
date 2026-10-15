@@ -1,3 +1,20 @@
+# =============================================================================
+# FILE: environment/scenario.py
+# ROLE IN PROJECT:
+#   Defines the Scenario dataclass — an immutable, frozen description of one
+#   workload episode used by both the RL agent and the simulator.
+#
+#   A Scenario acts as the "map" for an RL training/evaluation episode:
+#     - It records the temporal window (time_start, time_end) of real cluster
+#       data that tasks are drawn from.
+#     - It carries workload-regime labels (intensity, resource_dominance,
+#       variability) used by the scenario manifest and curriculum-learning logic.
+#     - Its contains_time() method is the authoritative boundary check used by
+#       the simulator to decide whether a task belongs to this episode.
+#
+#   Created by:  scenario_management/create_workload_scenario_manifest.py
+#   Consumed by: simulator/rl_environment.py and experiment scripts.
+# =============================================================================
 """
 Scenario Representation Data Model.
 

@@ -1,0 +1,41 @@
+{
+  "checkpoints": [
+    {
+      "steps": 10240,
+      "path": "C:\\Users\\gvkva\\Desktop\\My ongoing projects\\Machine Learning Project\\Adaptive-Multi-Core-CPU-Scheduler-RL\\experiments\\models\\final_dataset_ppo_runs\\final_candidate_4000_machines_10_candidates_50000_20261014\\checkpoints\\final_dataset_ppo_10240_steps.zip"
+    },
+    {
+      "steps": 20480,
+      "path": "C:\\Users\\gvkva\\Desktop\\My ongoing projects\\Machine Learning Project\\Adaptive-Multi-Core-CPU-Scheduler-RL\\experiments\\models\\final_dataset_ppo_runs\\final_candidate_4000_machines_10_candidates_50000_20261014\\checkpoints\\final_dataset_ppo_20480_steps.zip"
+    },
+    {
+      "steps": 30720,
+      "path": "C:\\Users\\gvkva\\Desktop\\My ongoing projects\\Machine Learning Project\\Adaptive-Multi-Core-CPU-Scheduler-RL\\experiments\\models\\final_dataset_ppo_runs\\final_candidate_4000_machines_10_candidates_50000_20261014\\checkpoints\\final_dataset_ppo_30720_steps.zip"
+    },
+    {
+      "steps": 40960,
+      "path": "C:\\Users\\gvkva\\Desktop\\My ongoing projects\\Machine Learning Project\\Adaptive-Multi-Core-CPU-Scheduler-RL\\experiments\\models\\final_dataset_ppo_runs\\final_candidate_4000_machines_10_candidates_50000_20261014\\checkpoints\\final_dataset_ppo_40960_steps.zip"
+    },
+    {
+      "steps": 50176,
+      "path": "C:\\Users\\gvkva\\Desktop\\My ongoing projects\\Machine Learning Project\\Adaptive-Multi-Core-CPU-Scheduler-RL\\experiments\\models\\final_dataset_ppo_runs\\final_candidate_4000_machines_10_candidates_50000_20261014\\final_dataset_ppo.zip"
+    }
+  ],
+  "machine_count": 10,
+  "task_pool_size": 50000,
+  "tasks_per_scenario": 5000,
+  "scenario_seeds": [
+    11001,
+    22002,
+    33003,
+    44004,
+    55005
+  ],
+  "profiles": [
+    "high_exponential",
+    "bursty_100_per_unit"
+  ],
+  "reward_mode": "extended_penalty",
+  "same_scenarios_reused_for_every_checkpoint": true,
+  "elapsed_seconds": 3608.378
+}

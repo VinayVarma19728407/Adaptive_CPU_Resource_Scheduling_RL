@@ -1,8 +1,49 @@
 """
-Clean Machine Resource Usage Files.
+============================================================
+File: clean_machine_usage.py
+Module: data_cleaning
+============================================================
+Implements the cleaning pipeline for the Alibaba cluster
+machine_usage dataset. The machine_usage table contains
+time-series resource utilization measurements sampled at
+regular intervals for each physical cluster node.
 
-This script implements the cleaning pipeline for time-series physical node resource usage (machine_usage).
-It cleans timestamp intervals, CPU utilization percentages, memory usage metrics, and disk load metrics.
+Cleaning operations performed:
+  - Reads the raw machine_usage.csv in memory-efficient chunks.
+  - Strips the "m_" prefix from machine_id values to normalize
+    identifiers (matching the convention in machine_meta).
+  - Removes rows where cpu_util_percent is missing (NaN), as CPU
+    utilization is a mandatory field for the RL environment.
+  - Removes rows where disk_io_percent falls outside the valid
+    physical range [0, 100] (negative or above 100).
+  - Drops the mem_gps and mkpi columns entirely, as they are not
+    used in the downstream scheduling environment.
+  - All remaining fields (mem_util_percent, net_in, net_out) are
+    preserved as-is without normalization or imputation.
+
+Key Components:
+  - Chunk-based streaming pipeline using pandas read_csv with
+    chunksize=250000.
+  - Column-drop for mem_gps and mkpi to reduce output file size.
+
+Inputs:
+  - dataset/raw/machine_usage.csv: raw Alibaba cluster machine usage
+    time-series trace.
+  - Expected columns (9): machine_id, time_stamp, cpu_util_percent,
+    mem_util_percent, mem_gps, mkpi, net_in, net_out, disk_io_percent.
+
+Outputs:
+  - dataset/cleaned/machine_usage.csv: cleaned machine usage records
+    with normalized machine_id, invalid rows removed, and unused
+    columns (mem_gps, mkpi) dropped.
+  - Output columns (7): machine_id, time_stamp, cpu_util_percent,
+    mem_util_percent, net_in, net_out, disk_io_percent.
+
+Project Module:
+  Part of the data_cleaning stage of the Adaptive Multi-Core CPU
+  Scheduler RL pipeline. Feeds into the RL environment's cluster
+  state representation.
+============================================================
 """
 
 import os

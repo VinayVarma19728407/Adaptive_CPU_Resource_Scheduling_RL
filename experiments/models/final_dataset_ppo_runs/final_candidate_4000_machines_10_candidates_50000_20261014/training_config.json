@@ -1,0 +1,33 @@
+{
+  "algorithm": "MaskablePPO",
+  "seed": 43,
+  "timesteps_requested": 50000,
+  "machine_count": 4000,
+  "tasks_per_episode": 512,
+  "candidate_count": 10,
+  "reward_mode": "extended_penalty",
+  "network_architecture": {
+    "pi": [
+      256,
+      128
+    ],
+    "vf": [
+      256,
+      128
+    ]
+  },
+  "n_steps": 512,
+  "batch_size": 128,
+  "n_epochs": 10,
+  "learning_rate": 0.0003,
+  "gamma": 0.99,
+  "gae_lambda": 0.95,
+  "clip_range": 0.2,
+  "ent_coef": 0.01,
+  "arrival_fraction_of_median_duration": 0.02,
+  "task_resource_units": {
+    "cpu": "plan_cpu / 100.0 CPU cores",
+    "memory": "plan_mem directly; same normalized scale as machine mem_size"
+  },
+  "arrival_time_note": "Arrival times are generated for controlled experiments; task resource requests and durations are dataset-derived."
+}

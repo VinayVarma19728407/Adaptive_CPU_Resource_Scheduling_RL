@@ -1,0 +1,32 @@
+{
+  "algorithm": "MaskablePPO",
+  "dataset": "C:\\Users\\gvkva\\Desktop\\My ongoing projects\\Machine Learning Project\\Adaptive-Multi-Core-CPU-Scheduler-RL\\dataset\\preprocessed\\batch_task.csv",
+  "eligible_records": 13446871,
+  "full_dataset_traversal": true,
+  "timesteps_requested": 14000000,
+  "tasks_per_episode": 512,
+  "machine_count": 8,
+  "candidate_count": 8,
+  "reward_mode": "extended_penalty",
+  "seed": 42,
+  "network_architecture": {
+    "pi": [
+      256,
+      128
+    ],
+    "vf": [
+      256,
+      128
+    ]
+  },
+  "n_steps": 512,
+  "batch_size": 128,
+  "n_epochs": 10,
+  "learning_rate": 0.0003,
+  "gamma": 0.99,
+  "gae_lambda": 0.95,
+  "clip_range": 0.2,
+  "ent_coef": 0.01,
+  "arrival_fraction_of_median_duration": 0.02,
+  "note": "Arrival times are generated; task resource requests and durations are sourced from eligible batch_task records."
+}

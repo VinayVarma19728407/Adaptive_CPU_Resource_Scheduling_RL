@@ -1,0 +1,54 @@
+{
+  "model_path": "C:\\Users\\gvkva\\Desktop\\My ongoing projects\\Machine Learning Project\\Adaptive-Multi-Core-CPU-Scheduler-RL\\experiments\\models\\final_dataset_ppo_runs\\final_dataset_ppo_v1_20261011_a\\final_dataset_ppo.zip",
+  "training_config_path": "C:\\Users\\gvkva\\Desktop\\My ongoing projects\\Machine Learning Project\\Adaptive-Multi-Core-CPU-Scheduler-RL\\experiments\\models\\final_dataset_ppo_runs\\final_dataset_ppo_v1_20261011_a\\training_config.json",
+  "evaluation_seeds": [
+    42000,
+    42001,
+    42002,
+    42003,
+    42004,
+    42005,
+    42006,
+    42007,
+    42008,
+    42009,
+    42010,
+    42011,
+    42012,
+    42013,
+    42014,
+    42015,
+    42016,
+    42017,
+    42018,
+    42019
+  ],
+  "machine_count": 8,
+  "machine_ids": [
+    "185",
+    "315",
+    "658",
+    "671",
+    "1139",
+    "1761",
+    "1989",
+    "2802"
+  ],
+  "tasks_per_episode": 512,
+  "candidate_count": 8,
+  "arrival_fraction_of_median_duration": 0.02,
+  "task_pool_rows": 9436,
+  "policies": [
+    "first_fit",
+    "least_loaded",
+    "maskable_ppo"
+  ],
+  "notes": [
+    "Task records and generated arrival times are identical across policies within each evaluation seed.",
+    "Machine selection reproduces the training selection method with the training seed.",
+    "Task CPU, memory, and duration are dataset-derived; arrivals are simulated.",
+    "PPO uses deterministic prediction with action masks enabled.",
+    "This is a held-out workload-seed evaluation, not a fully trace-driven replay of real arrivals."
+  ],
+  "elapsed_seconds": 9.416
+}

@@ -1,8 +1,47 @@
 """
-Clean Batch Instance Trace Files.
+============================================================
+File: clean_batch_instance.py
+Module: data_cleaning
+============================================================
+Implements the cleaning pipeline for the raw Alibaba cluster
+batch_instance trace dataset. The raw data is stored in a
+compressed tar.gz archive and is processed in memory-efficient
+chunks without full extraction to disk.
 
-This script implements the cleaning pipeline for raw Alibaba cluster batch_instance trace files.
-It parses raw fields, handles missing resource values, converts timestamps to relative seconds, and outputs cleaned dataset files.
+Cleaning operations performed:
+  - Reads the raw batch_instance.csv from inside batch_instance.tar.gz
+    via streaming (no full extraction).
+  - Detects and removes duplicate header rows embedded mid-file
+    (artifact of how the Alibaba dataset is distributed).
+  - Removes records where end_time < start_time (invalid duration).
+  - Retains records where end_time == start_time (zero duration).
+  - Preserves all missing values (NaN) for downstream preprocessing.
+  - Preserves all original column values and identifiers without
+    modification, clipping, or normalization.
+  - Validates the output file structure and row counts after writing.
+
+Key Components:
+  - Chunk-based streaming pipeline using pandas read_csv with chunksize.
+  - tarfile streaming to avoid extracting the multi-GB archive.
+  - Output validation: verifies column names and row counts match
+    expectations before finalizing.
+
+Inputs:
+  - batch_instance.tar.gz: compressed Alibaba cluster batch_instance
+    trace file located one level above the project root.
+  - Expected columns (14): instance_name, task_name, job_name,
+    task_type, status, start_time, end_time, machine_id, seq_no,
+    total_seq_no, cpu_avg, cpu_max, mem_avg, mem_max.
+
+Outputs:
+  - dataset/cleaned/batch_instance.csv: cleaned batch instance records
+    with duplicate headers and invalid-duration rows removed.
+    All other fields retained as-is for preprocessing.
+
+Project Module:
+  Part of the data_cleaning stage of the Adaptive Multi-Core CPU
+  Scheduler RL pipeline. Feeds into data_preprocessing.
+============================================================
 """
 
 import os
