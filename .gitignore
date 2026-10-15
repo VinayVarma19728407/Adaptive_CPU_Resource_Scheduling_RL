@@ -9,3 +9,9 @@ dataset/preprocessed/
 *.duckdb
 *.duckdb.tmp/
 *.f64
+
+# Locally generated PPO model files
+/experiments/models/*.zip
+/experiments/models/**/*.zip
+/experiments/models/**/checkpoints/
+/experiments/models/pre_task_fix/
