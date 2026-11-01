@@ -23,7 +23,6 @@ be treated as future work until implemented and tested.
 - `experiments/` — Experiment scenarios, inputs, and results.
 - `tests/` — Simulator and validation tests.
 - `docs/` — Technical documentation.
-- `Old/` — Previous implementation, excluded from Git.
 
 ## Requirements
 
