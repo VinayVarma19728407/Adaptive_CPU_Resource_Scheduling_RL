@@ -1,8 +1,7 @@
 """
-============================================================
 File: clean_batch_instance.py
 Module: data_cleaning
-============================================================
+
 Implements the cleaning pipeline for the raw Alibaba cluster
 batch_instance trace dataset. The raw data is stored in a
 compressed tar.gz archive and is processed in memory-efficient
@@ -41,7 +40,6 @@ Outputs:
 Project Module:
   Part of the data_cleaning stage of the Adaptive Multi-Core CPU
   Scheduler RL pipeline. Feeds into data_preprocessing.
-============================================================
 """
 
 import os
@@ -117,15 +115,7 @@ with tarfile.open(BATCH_INSTANCE_TAR_PATH,"r:gz") as tar:
     first_output = True
 
     try:
-        reader = pd.read_csv(
-            csv_file,
-            header=None,
-            names=columns,
-            chunksize=CHUNK_SIZE,
-            dtype=dtype_map,
-            low_memory=False,
-            on_bad_lines="error"
-        )
+        reader = pd.read_csv(csv_file,header=None,names=columns,chunksize=CHUNK_SIZE,dtype=dtype_map,low_memory=False,on_bad_lines="error")
 
         with open(CLEAN_BATCH_INSTANCE_PATH,"w",newline="",encoding="utf-8") as output_file:
             for chunk in reader:

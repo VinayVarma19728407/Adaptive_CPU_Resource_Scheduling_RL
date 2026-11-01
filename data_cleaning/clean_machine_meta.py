@@ -1,8 +1,7 @@
 """
-============================================================
 File: clean_machine_meta.py
 Module: data_cleaning
-============================================================
+
 Implements the cleaning pipeline for the Alibaba cluster
 machine_meta dataset. The machine_meta table describes the
 physical hardware configuration and status of each cluster
@@ -41,7 +40,6 @@ Outputs:
 Project Module:
   Part of the data_cleaning stage of the Adaptive Multi-Core CPU
   Scheduler RL pipeline. Feeds into preprocess_machine_meta.py.
-============================================================
 """
 
 import os

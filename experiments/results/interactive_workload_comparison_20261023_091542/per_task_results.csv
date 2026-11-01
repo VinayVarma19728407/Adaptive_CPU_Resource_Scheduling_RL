@@ -1,0 +1,10 @@
+policy,scenario_task_id,task_name,job_name,arrival_time,start_time,completion_time,wait_time,flow_time,machine_id,allocated_cpu,allocated_memory,baseline_duration,status,reason,invalid_action_count
+First Fit,manual_0001,task_001,job_001,0.0,0.0,80.0,0.0,80.0,1563,10.0,8.0,80.0,completed,,
+First Fit,manual_0002,task_002,job_002,0.0,0.0,15.0,0.0,15.0,1563,70.0,20.0,15.0,completed,,
+First Fit,manual_0003,task_003,job_003,0.2,0.2,65.2,0.0,65.0,158,20.0,40.0,65.0,completed,,
+Least Loaded,manual_0001,task_001,job_001,0.0,0.0,80.0,0.0,80.0,1563,10.0,8.0,80.0,completed,,
+Least Loaded,manual_0002,task_002,job_002,0.0,0.0,15.0,0.0,15.0,158,70.0,20.0,15.0,completed,,
+Least Loaded,manual_0003,task_003,job_003,0.2,0.2,65.2,0.0,65.0,1563,20.0,40.0,65.0,completed,,
+PPO 20480,manual_0002,task_002,job_002,0.0,0.0,15.0,0.0,15.0,158,70.0,20.0,15.0,completed,,0.0
+PPO 20480,manual_0003,task_003,job_003,0.2,0.2,65.2,0.0,65.0,1563,20.0,40.0,65.0,completed,,0.0
+PPO 20480,manual_0001,task_001,job_001,0.0,0.0,80.0,0.0,80.0,1563,10.0,8.0,80.0,completed,,0.0

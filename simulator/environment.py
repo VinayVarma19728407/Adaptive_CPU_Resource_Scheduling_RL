@@ -1,4 +1,3 @@
-# =============================================================================
 # FILE: simulator/environment.py
 # ROLE IN PROJECT:
 #   This is the core discrete-event scheduling simulator. It contains
@@ -19,7 +18,7 @@
 #     - rl_environment.py (wraps this class as a Gymnasium environment)
 #     - All experiment/benchmark scripts (e.g. evaluate_*.py, benchmark_*.py)
 #     - All test files (tests/test_environment.py, test_simulator_*.py)
-# =============================================================================
+
 from __future__ import annotations
 
 from collections import deque

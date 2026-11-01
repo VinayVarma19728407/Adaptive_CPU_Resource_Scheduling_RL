@@ -1,8 +1,7 @@
 """
-============================================================
 File: config.py
 Module: simulator
-============================================================
+
 Central configuration and path registry for the RL-based
 CPU scheduling simulator. All project-wide constants, dataset
 paths, and tunable simulator settings are defined here so that
@@ -42,7 +41,6 @@ Outputs:
   - Module-level constants and the validate_required_files()
     helper consumed by task_data.py, machine_state.py,
     scenario_loader.py, and other simulator sub-modules.
-============================================================
 """
 
 from pathlib import Path

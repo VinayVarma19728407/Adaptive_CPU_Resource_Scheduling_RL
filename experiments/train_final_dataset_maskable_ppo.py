@@ -1,3 +1,17 @@
+# FILE : experiments/train_final_dataset_maskable_ppo.py
+# INPUT SOURCE FILE  : dataset/preprocessed/batch_task.csv
+#   Location         : Adaptive-Multi-Core-CPU-Scheduler-RL/dataset/preprocessed/batch_task.csv
+#   Produced by      : data_preprocessing/preprocess_batch_task.py
+# INPUT SOURCE FILE  : dataset/preprocessed/machine_meta.csv
+#   Location         : Adaptive-Multi-Core-CPU-Scheduler-RL/dataset/preprocessed/machine_meta.csv
+#   Produced by      : data_preprocessing/preprocess_machine_meta.py
+# CACHE FILE (R/W)   : experiments/data/eligible_task_pool_seed42.csv
+#   Location         : Adaptive-Multi-Core-CPU-Scheduler-RL/experiments/data/
+# OUTPUT SOURCE FILE : experiments/models/final_dataset_ppo_runs/<run_name>/final_dataset_ppo.zip
+#   Location         : Adaptive-Multi-Core-CPU-Scheduler-RL/experiments/models/final_dataset_ppo_runs/
+#   Consumed by      : experiments/evaluate_final_dataset_ppo.py
+# OUTPUT SOURCE FILE : experiments/models/final_dataset_ppo_runs/<run_name>/training_config.json
+#   Consumed by      : experiments/evaluate_final_dataset_ppo.py (config loader)
 from __future__ import annotations
 
 import argparse

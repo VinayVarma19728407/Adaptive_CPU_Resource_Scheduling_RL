@@ -1,3 +1,14 @@
+# =============================================================================
+# FILE : data_preprocessing/preprocess_batch_task.py
+# INPUT SOURCE FILE  : dataset/cleaned/batch_task.csv
+#   Location         : Adaptive-Multi-Core-CPU-Scheduler-RL/dataset/cleaned/batch_task.csv
+#   Produced by      : data_cleaning/clean_batch_task.py
+# OUTPUT SOURCE FILE : dataset/preprocessed/batch_task.csv
+#   Location         : Adaptive-Multi-Core-CPU-Scheduler-RL/dataset/preprocessed/batch_task.csv
+#   Consumed by      : simulator/task_data.py  (via simulator/config.py BATCH_TASK_FILE)
+#                      simulator/scenario_loader.py (load_or_create_task_pool)
+#                      experiments/train_final_dataset_maskable_ppo.py
+# =============================================================================
 """
 Preprocess Batch Task Features.
 

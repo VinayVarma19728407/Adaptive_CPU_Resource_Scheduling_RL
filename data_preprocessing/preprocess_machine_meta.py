@@ -1,3 +1,13 @@
+# =============================================================================
+# FILE : data_preprocessing/preprocess_machine_meta.py
+# INPUT SOURCE FILE  : dataset/cleaned/machine_meta.csv
+#   Location         : Adaptive-Multi-Core-CPU-Scheduler-RL/dataset/cleaned/machine_meta.csv
+#   Produced by      : data_cleaning/clean_machine_meta.py
+# OUTPUT SOURCE FILE : dataset/preprocessed/machine_meta.csv
+#   Location         : Adaptive-Multi-Core-CPU-Scheduler-RL/dataset/preprocessed/machine_meta.csv
+#   Consumed by      : simulator/task_data.py  (via simulator/config.py MACHINE_META_FILE)
+#                      simulator/machine_state.py (MachineStateManager)
+# =============================================================================
 """
 Preprocess Machine Metadata Features.
 

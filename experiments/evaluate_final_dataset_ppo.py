@@ -1,4 +1,20 @@
-﻿from __future__ import annotations
+# =============================================================================
+# FILE : experiments/evaluate_final_dataset_ppo.py
+# INPUT SOURCE FILE  : experiments/models/final_dataset_ppo_runs/<run>/final_dataset_ppo.zip
+#   Location         : Adaptive-Multi-Core-CPU-Scheduler-RL/experiments/models/
+#   Produced by      : experiments/train_final_dataset_maskable_ppo.py
+# INPUT SOURCE FILE  : experiments/models/final_dataset_ppo_runs/<run>/training_config.json
+#   Produced by      : experiments/train_final_dataset_maskable_ppo.py
+# INPUT SOURCE FILE  : dataset/preprocessed/batch_task.csv + machine_meta.csv
+#   (via train_final_dataset_maskable_ppo.load_eligible_task_pool and task_data.load_machine_metadata)
+# OUTPUT SOURCE FILE : experiments/results/<run_name>_evaluation_*/episode_metrics.csv
+# OUTPUT SOURCE FILE : experiments/results/<run_name>_evaluation_*/aggregate_metrics.csv
+# OUTPUT SOURCE FILE : experiments/results/<run_name>_evaluation_*/task_results.csv
+# OUTPUT SOURCE FILE : experiments/results/<run_name>_evaluation_*/evaluation_config.json
+#   Location         : Adaptive-Multi-Core-CPU-Scheduler-RL/experiments/results/
+#   Consumed by      : Analysis scripts: analyze_maskable_results*.py, show_heldout_ppo_comparison.py
+# =============================================================================
+from __future__ import annotations
 
 import json
 import time

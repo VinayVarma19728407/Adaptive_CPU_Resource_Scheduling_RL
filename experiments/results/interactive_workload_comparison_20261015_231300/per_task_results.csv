@@ -1,0 +1,31 @@
+policy,scenario_task_id,task_name,job_name,arrival_time,start_time,completion_time,wait_time,flow_time,machine_id,allocated_cpu,allocated_memory,baseline_duration,status,reason,invalid_action_count
+First Fit,manual_0001,8,80,0.0,,,,,,,,15.0,unschedulable,Planned CPU/memory demand exceeds every eligible machine capacity.,
+First Fit,manual_0002,task_003,job_003,0.2,,,,,,,,65.0,unschedulable,Planned CPU/memory demand exceeds every eligible machine capacity.,
+First Fit,manual_0003,task_004,job_004,0.3,,,,,,,,25.0,unschedulable,Planned CPU/memory demand exceeds every eligible machine capacity.,
+First Fit,manual_0004,task_005,job_005,0.4,,,,,,,,18.0,unschedulable,Planned CPU/memory demand exceeds every eligible machine capacity.,
+First Fit,manual_0005,task_006,job_006,0.5,,,,,,,,90.0,unschedulable,Planned CPU/memory demand exceeds every eligible machine capacity.,
+First Fit,manual_0006,task_007,job_007,0.6,,,,,,,,20.0,unschedulable,Planned CPU/memory demand exceeds every eligible machine capacity.,
+First Fit,manual_0007,task_008,job_008,0.7,,,,,,,,55.0,unschedulable,Planned CPU/memory demand exceeds every eligible machine capacity.,
+First Fit,manual_0008,task_009,job_009,0.8,,,,,,,,35.0,unschedulable,Planned CPU/memory demand exceeds every eligible machine capacity.,
+First Fit,manual_0009,task_010,job_010,0.9,0.9,12.9,0.0,12.0,manual_machine_001,10.0,5.0,12.0,completed,,
+First Fit,manual_0010,task_011,job_011,1.0,,,,,,,,22.0,unschedulable,Planned CPU/memory demand exceeds every eligible machine capacity.,
+Least Loaded,manual_0001,8,80,0.0,,,,,,,,15.0,unschedulable,Planned CPU/memory demand exceeds every eligible machine capacity.,
+Least Loaded,manual_0002,task_003,job_003,0.2,,,,,,,,65.0,unschedulable,Planned CPU/memory demand exceeds every eligible machine capacity.,
+Least Loaded,manual_0003,task_004,job_004,0.3,,,,,,,,25.0,unschedulable,Planned CPU/memory demand exceeds every eligible machine capacity.,
+Least Loaded,manual_0004,task_005,job_005,0.4,,,,,,,,18.0,unschedulable,Planned CPU/memory demand exceeds every eligible machine capacity.,
+Least Loaded,manual_0005,task_006,job_006,0.5,,,,,,,,90.0,unschedulable,Planned CPU/memory demand exceeds every eligible machine capacity.,
+Least Loaded,manual_0006,task_007,job_007,0.6,,,,,,,,20.0,unschedulable,Planned CPU/memory demand exceeds every eligible machine capacity.,
+Least Loaded,manual_0007,task_008,job_008,0.7,,,,,,,,55.0,unschedulable,Planned CPU/memory demand exceeds every eligible machine capacity.,
+Least Loaded,manual_0008,task_009,job_009,0.8,,,,,,,,35.0,unschedulable,Planned CPU/memory demand exceeds every eligible machine capacity.,
+Least Loaded,manual_0009,task_010,job_010,0.9,0.9,12.9,0.0,12.0,manual_machine_001,10.0,5.0,12.0,completed,,
+Least Loaded,manual_0010,task_011,job_011,1.0,,,,,,,,22.0,unschedulable,Planned CPU/memory demand exceeds every eligible machine capacity.,
+PPO 20480,manual_0001,8,80,0.0,,,,,,,,15.0,unschedulable,Planned CPU/memory demand exceeds every eligible machine capacity.,0.0
+PPO 20480,manual_0002,task_003,job_003,0.2,,,,,,,,65.0,unschedulable,Planned CPU/memory demand exceeds every eligible machine capacity.,0.0
+PPO 20480,manual_0003,task_004,job_004,0.3,,,,,,,,25.0,unschedulable,Planned CPU/memory demand exceeds every eligible machine capacity.,0.0
+PPO 20480,manual_0004,task_005,job_005,0.4,,,,,,,,18.0,unschedulable,Planned CPU/memory demand exceeds every eligible machine capacity.,0.0
+PPO 20480,manual_0005,task_006,job_006,0.5,,,,,,,,90.0,unschedulable,Planned CPU/memory demand exceeds every eligible machine capacity.,0.0
+PPO 20480,manual_0006,task_007,job_007,0.6,,,,,,,,20.0,unschedulable,Planned CPU/memory demand exceeds every eligible machine capacity.,0.0
+PPO 20480,manual_0007,task_008,job_008,0.7,,,,,,,,55.0,unschedulable,Planned CPU/memory demand exceeds every eligible machine capacity.,0.0
+PPO 20480,manual_0008,task_009,job_009,0.8,,,,,,,,35.0,unschedulable,Planned CPU/memory demand exceeds every eligible machine capacity.,0.0
+PPO 20480,manual_0010,task_011,job_011,1.0,,,,,,,,22.0,unschedulable,Planned CPU/memory demand exceeds every eligible machine capacity.,0.0
+PPO 20480,manual_0009,task_010,job_010,0.9,0.9,12.9,0.0,12.0,manual_machine_001,10.0,5.0,12.0,completed,,0.0

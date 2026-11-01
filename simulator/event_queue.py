@@ -1,8 +1,7 @@
 """
-============================================================
 File: event_queue.py
 Module: simulator
-============================================================
+
 Discrete-event priority queue used as the timing backbone of
 the CPU scheduling simulator. All future events (task arrivals
 and task completions) are stored here in chronological order
@@ -37,7 +36,6 @@ Outputs:
   - Ordered Event objects returned by pop() and peek(), driving
     the simulation clock forward in SchedulingEnvironment and
     RLSchedulingEnvironment.
-============================================================
 """
 
 from dataclasses import dataclass, field

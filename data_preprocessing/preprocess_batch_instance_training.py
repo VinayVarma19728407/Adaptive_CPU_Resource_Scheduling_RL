@@ -22,7 +22,6 @@
 #
 #   Input:  batch_instance.tar.gz (raw Alibaba cluster trace archive)
 #   Output: dataset/preprocessed/batch_instance_training.csv
-# =============================================================================
 """
 Preprocess Training Split for Batch Instances.
 

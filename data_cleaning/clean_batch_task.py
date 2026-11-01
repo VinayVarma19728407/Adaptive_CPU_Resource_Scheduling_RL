@@ -1,8 +1,7 @@
 """
-============================================================
 File: clean_batch_task.py
 Module: data_cleaning
-============================================================
+
 Implements the cleaning pipeline for the Alibaba cluster
 batch_task metadata dataset. The batch_task table contains
 one record per task with planned resource requirements and
@@ -38,7 +37,6 @@ Outputs:
 Project Module:
   Part of the data_cleaning stage of the Adaptive Multi-Core CPU
   Scheduler RL pipeline. Feeds into preprocess_batch_task.py.
-============================================================
 """
 
 import os

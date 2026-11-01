@@ -1,8 +1,7 @@
 """
-============================================================
 File: clean_machine_usage.py
 Module: data_cleaning
-============================================================
+
 Implements the cleaning pipeline for the Alibaba cluster
 machine_usage dataset. The machine_usage table contains
 time-series resource utilization measurements sampled at
@@ -43,7 +42,6 @@ Project Module:
   Part of the data_cleaning stage of the Adaptive Multi-Core CPU
   Scheduler RL pipeline. Feeds into the RL environment's cluster
   state representation.
-============================================================
 """
 
 import os

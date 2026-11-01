@@ -1,3 +1,13 @@
+# =============================================================================
+# FILE : experiments/benchmark_scheduling_policies.py
+# INPUT SOURCE FILE  : experiments/models/ppo_smoke_test.zip
+#   Location         : Adaptive-Multi-Core-CPU-Scheduler-RL/experiments/models/
+#   Produced by      : experiments/train_ppo_smoke_test.py
+# INPUT SOURCE FILE  : (in-memory controlled 2-machine workload — no CSV read)
+# OUTPUT SOURCE FILE : experiments/results/controlled_policy_benchmark.csv
+#   Location         : Adaptive-Multi-Core-CPU-Scheduler-RL/experiments/results/
+#   Consumed by      : Internal analysis / reporting
+# =============================================================================
 from __future__ import annotations
 
 from pathlib import Path

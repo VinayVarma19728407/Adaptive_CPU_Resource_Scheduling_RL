@@ -16,7 +16,7 @@ from simulator.scenario_loader import load_or_create_task_pool, validate_task_po
 from simulator.task_data import load_machine_metadata
 
 
-DEFAULT_TIMESTEPS = 102_400
+DEFAULT_TIMESTEPS = 250_000
 DEFAULT_MACHINE_COUNT = 8
 DEFAULT_TASKS_PER_EPISODE = None
 DEFAULT_CANDIDATE_COUNT = 8

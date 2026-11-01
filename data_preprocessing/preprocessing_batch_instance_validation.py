@@ -1,3 +1,14 @@
+# =============================================================================
+# FILE : data_preprocessing/preprocessing_batch_instance_validation.py
+# INPUT SOURCE FILE  : batch_instance.tar.gz (raw Alibaba cluster archive)
+#   Location         : Parent directory of project root
+#                      (Machine Learning Project/batch_instance.tar.gz)
+#   Produced by      : External — Alibaba cluster trace (raw data)
+# OUTPUT SOURCE FILE : dataset/preprocessed/batch_instance_validation.csv
+#   Location         : Adaptive-Multi-Core-CPU-Scheduler-RL/dataset/preprocessed/batch_instance_validation.csv
+#   Consumed by      : simulator/config.py (VALIDATION_FILE)
+#                      experiments/validate_*.py and benchmark_*.py scripts
+# =============================================================================
 """
 Preprocess Validation Split for Batch Instances.
 

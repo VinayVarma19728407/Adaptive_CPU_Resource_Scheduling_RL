@@ -1,5 +1,4 @@
 """Build a chronological historical-start-time replay scenario.
-
 Caution:
 batch_task.start_time is a recorded task start, not a verified
 submission timestamp. arrival_time is a historical-start-time proxy.

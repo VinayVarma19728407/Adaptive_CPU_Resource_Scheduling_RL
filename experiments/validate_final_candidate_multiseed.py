@@ -19,9 +19,7 @@ from experiments.bounded_evaluation_task_pool import (
 )
 
 
-# ------------------------------------------------------------
 # REPRODUCIBLE MULTI-SEED VALIDATION
-# ------------------------------------------------------------
 
 RUN_NAME = (
     "final_candidate_4000_machines_10_candidates_50000_20261014"

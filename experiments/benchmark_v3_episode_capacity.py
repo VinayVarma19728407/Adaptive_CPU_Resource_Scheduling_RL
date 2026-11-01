@@ -165,9 +165,7 @@ def main() -> int:
     reserve_mb = max(2048, available_mb * 0.35)
     usable_budget_mb = max(0, available_mb - reserve_mb)
 
-    print("=" * 72)
-    print("PPO V3 EPISODE CAPACITY BENCHMARK — NO TRAINING")
-    print("=" * 72)
+    print("PPO V3 EPISODE CAPACITY BENCHMARK — NO TRAINING\n")
     print(f"Project root: {ROOT}")
     print(f"Dataset: {DATA_PATH}")
     print(f"Physical RAM: {total_mb:.0f} MB")
@@ -266,11 +264,9 @@ def main() -> int:
     }
     RESULT_PATH.write_text(json.dumps(final, indent=2), encoding="utf-8")
     print()
-    print("=" * 72)
     print(f"Last passing candidate: {last_pass if last_pass is not None else 'NONE'} tasks")
     print(f"Detailed report: {RESULT_PATH}")
     print("Do not start full PPO training from this benchmark result alone.")
-    print("=" * 72)
     return 0
 
 

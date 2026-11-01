@@ -1,8 +1,7 @@
 """
-============================================================
 File: task_data.py
 Module: simulator
-============================================================
+
 Raw data access layer for the RL-based CPU scheduling simulator.
 This module is responsible for loading and lightly validating
 the two primary source datasets — machine metadata and batch
@@ -48,7 +47,6 @@ Outputs:
     MachineStateManager.
   - pd.DataFrame of sampled task records consumed by
     scenario_loader.py to generate workload scenarios.
-============================================================
 """
 
 import random

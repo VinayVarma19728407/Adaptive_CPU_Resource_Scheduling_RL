@@ -1,8 +1,7 @@
 """
-============================================================
 File: create_data_dictionary.py
 Module: data_documentation
-============================================================
+
 Generates a comprehensive data dictionary CSV document that
 catalogues every column across all four Alibaba cluster dataset
 tables used in the Adaptive Multi-Core CPU Scheduler RL project.
@@ -12,18 +11,12 @@ column in each dataset:
   - dataset:             which table the column belongs to.
   - column_name:         exact column name used in the CSV files.
   - data_type:           logical type (numeric, object, etc.).
-  - role:                semantic role (identifier, resource, temporal,
-                          categorical, encoded, derived, etc.).
+  - role:                semantic role (identifier, resource, temporal, categorical, encoded, derived, etc.).
   - description:         human-readable description of the field.
-  - preprocessing_status: what transformations were applied or will
-                          be applied during the cleaning/preprocessing
-                          stages.
-  - missing_allowed:     whether NaN values are permitted to remain
-                         in the final preprocessed output.
-  - downstream_use:      how the field is used in the RL environment
-                         or model training.
-  - notes:               additional context such as encoding maps,
-                         cardinality counts, or special handling.
+  - preprocessing_status: what transformations were applied or will be applied during the cleaning/preprocessing stages.
+  - missing_allowed:     whether NaN values are permitted to remain in the final preprocessed output.
+  - downstream_use:      how the field is used in the RL environment or model training.
+  - notes:               additional context such as encoding maps, cardinality counts, or special handling.
 
 Key Components:
   - add(): helper function that appends a single column's metadata
@@ -45,7 +38,6 @@ Project Module:
   Standalone documentation utility in the data_documentation module
   of the Adaptive Multi-Core CPU Scheduler RL pipeline. Intended
   for reference by all pipeline stages and for project reporting.
-============================================================
 """
 
 import os

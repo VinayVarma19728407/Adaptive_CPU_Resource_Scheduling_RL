@@ -1,4 +1,3 @@
-# =============================================================================
 # FILE: simulator/scenario_loader.py
 # ROLE IN PROJECT:
 #   Responsible for building the initial synthetic workload scenarios used in
@@ -21,7 +20,6 @@
 #   Note: The full-dataset trace-replay approach superseded these synthetic
 #   scenarios in later experiments. See trace_replay_scenario.py and the
 #   scenario_management/ folder.
-# =============================================================================
 
 from pathlib import Path
 

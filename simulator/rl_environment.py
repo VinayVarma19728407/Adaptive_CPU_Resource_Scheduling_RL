@@ -1,4 +1,3 @@
-# =============================================================================
 # FILE: simulator/rl_environment.py
 # ROLE IN PROJECT:
 #   This is the Gymnasium-compatible RL environment used to train the PPO
@@ -13,12 +12,10 @@
 #     - Reward modes (configurable):
 #         "wait_only"       — penalise only task waiting time
 #         "core_penalty"    — also penalise invalid actions, unschedulable tasks
-#         "extended_penalty"— all above plus imbalance, fragmentation, saturation
-#
 #   The training scripts (experiments/train_*.py) instantiate this class.
 #   Evaluation scripts (experiments/evaluate_*.py) also use it to score
 #   trained PPO checkpoints against baseline policies.
-# =============================================================================
+
 from __future__ import annotations
 
 import math
@@ -71,7 +68,6 @@ class RLSchedulingEnvironment(gym.Env):
         if reward_mode not in {
             "wait_only",
             "core_penalty",
-            "extended_penalty",
         }:
             raise ValueError(f"Unknown reward mode: {reward_mode}")
 

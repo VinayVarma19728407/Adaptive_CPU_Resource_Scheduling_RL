@@ -176,7 +176,7 @@ def run_ppo(scenario, machines, model):
         scenario=scenario.copy(),
         machine_metadata=machines.copy(),
         candidate_count=CANDIDATE_COUNT,
-        reward_mode="extended_penalty",
+        reward_mode="core_penalty",
     )
 
     observation, _ = env.reset(seed=42)
@@ -259,10 +259,8 @@ def summarize(policy, scenario, results, final_time):
 
 
 def main():
-    print("=" * 72)
     print("INTERACTIVE CPU SCHEDULER COMPARISON")
     print("PPO vs First Fit vs Least Loaded")
-    print("=" * 72)
 
     if not MODEL_PATH.is_file():
         raise FileNotFoundError(f"PPO checkpoint not found: {MODEL_PATH}")
@@ -290,7 +288,7 @@ def main():
     task_view["cpu_cores"] = task_view["plan_cpu"] / 100.0
     print(
         task_view[
-            ["scenario_task_id", "task_name", "cpu_cores",
+            [ "task_name", "cpu_cores",
              "plan_mem", "duration", "arrival_time"]
         ].to_string(index=False)
     )
@@ -330,19 +328,15 @@ def main():
 
     summary_df = pd.DataFrame(summaries)
 
-    print("\n" + "=" * 90)
-    print("SUMMARY COMPARISON")
-    print("=" * 90)
+    print("\nSUMMARY COMPARISON")               
     print(summary_df.to_string(index=False, float_format=lambda x: f"{x:.4f}"))
 
     combined = pd.concat(task_outputs, ignore_index=True)
 
-    print("\n" + "=" * 90)
     print("PER-TASK RESULTS")
-    print("=" * 90)
-
+    
     columns = [
-        "policy", "scenario_task_id", "task_name", "status",
+        "policy", "task_name", "status",
         "machine_id", "arrival_time", "start_time", "completion_time",
         "wait_time", "flow_time", "reason",
     ]

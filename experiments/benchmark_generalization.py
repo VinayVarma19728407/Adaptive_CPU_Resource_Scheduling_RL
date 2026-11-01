@@ -226,7 +226,6 @@ def main() -> None:
     records = []
 
     print("PPO GENERALIZATION BENCHMARK")
-    print("=" * 65)
     print(f"Scenarios: {len(SEEDS)}")
     print("Policies: first_fit, least_loaded, PPO")
     print("Machines: A (10 CPU), B (6 CPU)")
@@ -276,7 +275,6 @@ def main() -> None:
     aggregate.to_csv(aggregate_path, index=False)
 
     print("\nAGGREGATE RESULTS")
-    print("=" * 100)
     print(aggregate.round(4).to_string(index=False))
 
     print(f"\nPer-scenario results: {detailed_path}")

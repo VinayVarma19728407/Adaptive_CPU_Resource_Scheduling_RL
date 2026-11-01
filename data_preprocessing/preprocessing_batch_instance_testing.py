@@ -1,3 +1,14 @@
+# =============================================================================
+# FILE : data_preprocessing/preprocessing_batch_instance_testing.py
+# INPUT SOURCE FILE  : batch_instance.tar.gz (raw Alibaba cluster archive)
+#   Location         : Parent directory of project root
+#                      (Machine Learning Project/batch_instance.tar.gz)
+#   Produced by      : External — Alibaba cluster trace (raw data)
+# OUTPUT SOURCE FILE : dataset/preprocessed/batch_instance_testing.csv
+#   Location         : Adaptive-Multi-Core-CPU-Scheduler-RL/dataset/preprocessed/batch_instance_testing.csv
+#   Consumed by      : simulator/config.py (TESTING_FILE)
+#                      experiments/evaluate_*.py scripts
+# =============================================================================
 """
 Preprocess Testing Split for Batch Instances.
 

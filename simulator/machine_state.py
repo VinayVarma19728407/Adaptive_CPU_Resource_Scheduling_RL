@@ -1,4 +1,3 @@
-# =============================================================================
 # FILE: simulator/machine_state.py
 # ROLE IN PROJECT:
 #   Implements the authoritative resource ledger for all machines in the
@@ -19,7 +18,6 @@
 #     - simulator/environment.py  (baseline scheduling)
 #     - simulator/rl_environment.py (RL step loop)
 #     - tests/test_machine_state.py (unit tests)
-# =============================================================================
 
 from __future__ import annotations
 

@@ -1,0 +1,3 @@
+machine_id,time_stamp,failure_domain_1,failure_domain_2,cpu_num,mem_size,status
+158,0,26,6.0,96,100.0,1
+1563,551860,225,9.0,96,100.0,1

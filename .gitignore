@@ -15,3 +15,6 @@ dataset/preprocessed/
 /experiments/models/**/*.zip
 /experiments/models/**/checkpoints/
 /experiments/models/pre_task_fix/
+__pycache__/
+*.py[cod]
+.venv/
