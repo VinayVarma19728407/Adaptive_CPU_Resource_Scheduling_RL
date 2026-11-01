@@ -12,17 +12,13 @@ be treated as future work until implemented and tested.
 
 ## Project Structure
 
-- `analysis/` — Workload, telemetry, and resource analysis.
 - `data_cleaning/` — Scripts for cleaning source datasets.
 - `data_documentation/` — Dataset documentation utilities.
 - `data_preprocessing/` — Dataset preprocessing scripts.
-- `environment/` — Environment-related configuration and data structures.
+- `dataset` — Contains all the dataset excluding the raw, cleaned, preprocessed
 - `simulator/` — Scheduling simulator, event queue, machine state, and task loading.
-- `scenario/` — Workload scenario generation and validation.
-- `validation/` — Data quality, relationship, and temporal validation.
 - `experiments/` — Experiment scenarios, inputs, and results.
-- `tests/` — Simulator and validation tests.
-- `docs/` — Technical documentation.
+
 
 ## Requirements
 
